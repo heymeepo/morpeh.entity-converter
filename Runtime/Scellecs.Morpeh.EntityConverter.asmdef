@@ -1,0 +1,18 @@
+{
+    "name": "Scellecs.Morpeh.EntityConverter",
+    "rootNamespace": "",
+    "references": [
+        "GUID:2765e68924a08a94ea0ea66b31c0168f",
+        "GUID:3377deebfb0acde45876d12c6e3d27cc",
+        "GUID:e7f3544f233681345800e6daa01357c0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

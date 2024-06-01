@@ -1,0 +1,13 @@
+{
+    "name": "com.scellecs.morpeh.entityconverter",
+    "author": "Heymeepo",
+    "displayName": "Morpeh Entity converter",
+    "description": "Tools for baking and converting gameobjects into entities.",
+    "unity": "2022.3",
+    "version": "0.0.1",
+    "keywords": ["morpeh", "ecs", "unity"],
+    "dependencies": 
+    {
+        
+    }
+}

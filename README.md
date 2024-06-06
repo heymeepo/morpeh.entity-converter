@@ -32,9 +32,9 @@ In this approach, gameobjects are used as configurations for future entities. Th
 
 **```ConvertToEntity```** is a MonoBehaviour class that you should attach to the root GameObject/Prefab. You do not need to attach it to child GameObjects. 
 
-**```EntityBakedDataAsset```**  is a ScriptableObject that is placed in ```ConvertToEntity```. It is a serialized representation of your entity hierarchy, based on GameObject and will be used at runtime.
+**```EntityBakedDataAsset```**  is a ScriptableObject that is placed in ```ConvertToEntity```. It is a serialized representation of your entity hierarchy based on GameObject, and will be used at runtime.
 
-**```EcsAuthoring```** is the primary MonoBehaviour component for converting gameobjects into entities. All user-declared authoring components must inherit from it.
+**```EcsAuthoring```** is the primary MonoBehaviour component for converting gameobjects into entities. All user-declared authoring components must inherit it.
 
 ### Baking process
 The rule is as follows: all game objects in the hierarchy that have any ```: EcsAuthoring``` component attached will be added to the baked entity hierarchy. All game objects in the hierarchy that do not have any authoring component will be ignored as if they were never there. 
@@ -48,9 +48,11 @@ All operations related to adding data to the entity should occur inside the ```B
 There are 2 options to add a component to an entity during data baking:
 
 - ```SetComponent<T>(T data)``` 
-Gather the necessary data from the prefab and pass an instance of your ```: IComponent``` structure to this method.
+
+Gather the necessary data from the prefab and pass an instance of your ```: IComponent``` struct to this method.
 
 - ```SetComoponentDataUnsafe<T>(T data, int typeId)``` 
+
 This is a somewhat dangerous way to add a component to an entity. Use it only if you are absolutely certain that you need to. 
 
 The ```T data``` in this case can be any structure, either managed or unmanaged, but it must exactly match the memory layout of the component you want to write it into.

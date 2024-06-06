@@ -2,7 +2,7 @@
     "name": "com.scellecs.morpeh.entity-converter",
     "author": "Heymeepo",
     "displayName": "Morpeh Entity Converter",
-    "description": "Tools for baking and converting gameobjects into entities.",
+    "description": "Tools for serializing and converting game objects into entities.",
     "unity": "2022.3",
     "version": "0.0.1",
     "keywords": ["morpeh", "ecs", "unity"],

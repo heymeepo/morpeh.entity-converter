@@ -23,9 +23,7 @@ namespace Scellecs.Morpeh.EntityConverter.Serialization
             };
 
             BinarySerialization.ToBinary(&stream, bakedData, parameters);
-
             var serializedData = new byte[stream.Length];
-
             fixed (byte* buffer = &serializedData[0])
             {
                 UnsafeUtility.MemCpy(buffer, stream.Ptr, stream.Length);

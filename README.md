@@ -9,8 +9,8 @@ Tools for serializing and converting gameobjects with hierarchy into entities fo
 
 Requirements:
 
-- [morpeh](https://github.com/scellecs/morpeh/tree/stage-2024.1) #stage-2024.1
-- [morpeh.transforms](https://github.com/heymeepo/morpeh.transforms/tree/stage-2024) #stage-2024
+- [morpeh #stage-2024.1](https://github.com/scellecs/morpeh/tree/stage-2024.1)
+- [morpeh.transforms #stage-2024](https://github.com/heymeepo/morpeh.transforms/tree/stage-2024)
 
 Dependencies:
 

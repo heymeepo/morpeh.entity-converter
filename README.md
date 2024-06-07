@@ -26,7 +26,8 @@ https://github.com/heymeepo/morpeh.entity-converter.git
 
 ## Usage
 
-**Important:** When using this package, you must add ```WarmupComponentsTypesInitializer``` as the very first initializer in your list of systems.
+> [!IMPORTANT]  
+> When using this package, you must add ```WarmupComponentsTypesInitializer``` as the very first initializer in your list of systems.
 
 In this approach, gameobjects are used as configurations for future entities. They are only needed in the editor, so they should have the tag "EditorOnly". ```ConvertToEntity``` sets this tag by default.
 
@@ -61,7 +62,8 @@ The ```int typeId``` is the runtime ID of the component, which can be obtained u
 
 ```int typeId``` is valid only during the baking process and cannot be serialized within authoring.
 
-**Important:** If you have renamed, added, or deleted any ```: IComponent``` in your project, all your serialized EntityBakedDataAsset instances potentially become invalid and will require re-baking, as they are binary. Full rebaking performs automatically after assemblies reload. ~~Re-baking only affects assets that used components types from the modified assemblies.~~ Alternatively, you can disable automatic rebaking and use...
+> [!IMPORTANT] 
+> If you have renamed, added, or deleted any ```: IComponent``` in your project, all your serialized EntityBakedDataAsset instances potentially become invalid and will require re-baking, as they are binary. Full rebaking performs automatically after assemblies reload. ~~Re-baking only affects assets that used components types from the modified assemblies.~~ Alternatively, you can disable automatic rebaking and use...
 
 Each time you make a change to your GameObject/Prefab, ```ConvertToEntity``` will invoke all Bake() methods in your authoring components within the full hierarchy and serialize them into the ```EntityBakedData``` asset.
 

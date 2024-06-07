@@ -2,8 +2,8 @@
 
 Tools for serializing and converting gameobjects with hierarchy into entities for [Morpeh ECS](https://github.com/scellecs/morpeh).
 
-## Warning ⚠️
-This package is in the early stage of development for the Morpeh-2024, which has not yet been released. There will likely be many significant changes.
+> [!WARNING]
+> This package is in the early stage of development for the Morpeh-2024, which has not yet been released. There will likely be many significant changes.
 
 ## Installation
 

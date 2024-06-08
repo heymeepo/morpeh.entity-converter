@@ -40,7 +40,7 @@ In this approach, gameobjects are used as configurations for future entities. Th
 ### Baking process
 The rule is as follows: all game objects in the hierarchy that have any ```: EcsAuthoring``` component attached will be added to the baked entity hierarchy. All game objects in the hierarchy that do not have any authoring component will be ignored as if they were never there. 
 
-I strongly advise against having such objects in the hierarchy because firstly, they serve no purpose, and secondly, you may get unexpected results since child entities inherit their local position relative to the parent gameobject, which could be a completely different object from what you expect in the editor.
+I strongly recommend against having such objects in the hierarchy, because you may get unexpected results since child entities inherit their local position relative to the parent, which could be a completely different object from what you expect in the editor.
 
 All transform components such as ```LocalToWorld```, ```LocalTransform```, and ```PostTransformMatrix``` are automatically added during baking, you do not need to add them manually.
 

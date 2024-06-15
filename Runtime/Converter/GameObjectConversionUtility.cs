@@ -31,6 +31,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 var components = new List<SetComponentWrapper>();
                 authoring.components = components;
                 authoring.Bake();
+                authoring.components = null;
 
                 foreach (var component in components)
                 {

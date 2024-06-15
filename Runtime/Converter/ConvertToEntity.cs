@@ -1,30 +1,40 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 using System.Collections.Generic;
-using Scellecs.Morpeh.EntityConverter.Serialization;
+using Scellecs.Morpeh.EntityConverter.Utilities;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
+    [Icon("Packages/com.scellecs.morpeh.entity-converter/Editor/DefaultResources/Icons/d_Linker@64.png")]
     public sealed class ConvertToEntity : MonoBehaviour
     {
         [SerializeField]
-        private EntityBakedDataAsset bakedAsset;
+        internal EntityBakedDataAsset bakedDataAsset;
 
-        [ContextMenu("Bake")]
-        public void Bake()
+        [SerializeField]
+        internal EntityBakedDataAsset bakedDataSceneAsset;
+
+        [SerializeField]
+        internal bool excludeFromScene;
+
+        internal void Bake()
         {
-            if (bakedAsset != null)
+            if(PrefabUtils.IsSceneObject(gameObject) && bakedDataSceneAsset != null) 
             {
-                var bakedRoots = new List<EntityBakedData>();
-                GameObjectConversionUtility.ExportBakedData(gameObject, bakedRoots);
-                var serialized = SerializationUtility.SerializeBakedData(bakedRoots);
-                bakedAsset.SetSerializedData(serialized);
-                gameObject.tag = "EditorOnly";
-                UnityEditor.EditorUtility.SetDirty(bakedAsset);
-                UnityEditor.EditorUtility.SetDirty(gameObject);
-                UnityEditor.AssetDatabase.SaveAssets();
-                UnityEditor.AssetDatabase.Refresh();
+                Bake(bakedDataSceneAsset);
             }
+            else if(bakedDataAsset != null)
+            {
+                Bake(bakedDataAsset);
+            }
+        }
+
+        private void Bake(EntityBakedDataAsset bakedDataAsset)
+        {
+            var bakedRoots = new List<EntityBakedData>();
+            GameObjectConversionUtility.ExportBakedData(gameObject, bakedRoots);
+            var serialized = Serialization.SerializationUtility.SerializeBakedData(bakedRoots);
+            bakedDataAsset.SetSerializedData(serialized);
         }
     }
 }

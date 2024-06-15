@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
+    <Style src="project://database/Packages/com.scellecs.morpeh.entity-converter/Editor/Styles/EntityConverterWindow.uss?fileID=7433441132597879392&amp;guid=a4af1fd06bad377419bd82dec9369bcd&amp;type=3#EntityConverterWindow" />
+    <ui:VisualElement name="Root" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+        <ui:Foldout text="Foldout" class="scenes-foldout">
+            <ui:VisualElement class="scene-scene-baked-data-pair scene-scene-data-pair">
+                <uie:ObjectField class="scene-object-field" />
+                <ui:Button display-tooltip-when-elided="true" enable-rich-text="true" class="scene-baked-data-field" />
+            </ui:VisualElement>
+        </ui:Foldout>
+    </ui:VisualElement>
+</ui:UXML>

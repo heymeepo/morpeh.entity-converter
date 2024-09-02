@@ -7,5 +7,6 @@
                 <ui:Button display-tooltip-when-elided="true" enable-rich-text="true" class="scene-baked-data-field" />
             </ui:VisualElement>
         </ui:Foldout>
+        <ui:Foldout text="Foldout" class="options-foldout" />
     </ui:VisualElement>
 </ui:UXML>

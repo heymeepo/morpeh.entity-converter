@@ -1,75 +1,20 @@
 ﻿#if UNITY_EDITOR
-using System;
-using System.Collections.Generic;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
     public abstract class EcsAuthoring : MonoBehaviour
     {
-        [field: SerializeField, HideInInspector] 
-        public bool Unparent { get; protected set; } = false;
+        [field: SerializeField, HideInInspector]
+        public bool ShouldUnparent { get; protected set; } = false;
 
-        [NonSerialized]
-        internal List<SetComponentWrapper> components;
+        public EntityLink GetEntityLink() => GetComponent<ConvertToEntity>().GetEntityLink();
 
-        public abstract void Bake();
+        public bool IsValidForConversion() => GetComponent<ConvertToEntity>() != null;
 
-        protected void SetComponent<T>() where T : struct, IComponent
-        {
-            if (components == null)
-            {
-                return;
-            }
+        public virtual void OnBeforeBake(UserContext userContext) { }
 
-            components.Add(new SetComponentWrapper<T>()
-            {
-                data = default,
-                typeId = GetComponentTypeId<T>(),
-                dstSize = UnsafeUtility.SizeOf<T>()
-            });
-        }
-
-        protected void SetComponent<T>(T data) where T : struct, IComponent
-        {
-            if (components == null)
-            {
-                return;
-            }
-
-            components.Add(new SetComponentWrapper<T>()
-            { 
-                data = data,
-                typeId = GetComponentTypeId<T>(),
-                dstSize = UnsafeUtility.SizeOf<T>()
-            });
-        }
-
-        protected void SetComoponentDataUnsafe<T>(T data, int typeId) where T : struct
-        {
-            if (components == null)
-            {
-                return;
-            }
-
-            components.Add(new SetComponentWrapper<T>()
-            {
-                data = data,
-                typeId = typeId,
-                dstSize = UnsafeUtility.SizeOf<T>()
-            });
-        }
-
-        protected int GetComponentTypeId<T>() where T : struct, IComponent
-        {
-            return ComponentsTypeCache.GetTypeId(typeof(T));
-        }
-
-        protected int GetComponentTypeId(Type componentType)
-        {
-            return ComponentsTypeCache.GetTypeId(componentType);
-        }
+        public abstract void OnBake(BakingContext bakingContext, UserContext userContext);
 
         protected internal bool IsPrimaryRoot() => transform.parent == null || transform.parent.GetComponentsInParent<EcsAuthoring>().Length == 0;
 

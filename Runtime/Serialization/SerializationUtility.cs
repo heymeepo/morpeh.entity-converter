@@ -7,9 +7,9 @@ namespace Scellecs.Morpeh.EntityConverter.Serialization
 {
     internal static unsafe class SerializationUtility
     {
-        public static SerializedBakedData SerializeBakedData(List<EntityBakedData> bakedData)
+        public static SerializedBakedData SerializeBakedData(List<BakedData> bakedData)
         {
-            if (bakedData == null) 
+            if (bakedData == null)
             {
                 return default;
             }
@@ -19,7 +19,7 @@ namespace Scellecs.Morpeh.EntityConverter.Serialization
             var unityObjectsList = new List<UnityEngine.Object>();
             var parameters = new BinarySerializationParameters
             {
-                UserDefinedAdapters = new List<IBinaryAdapter> { new UnityObjectAdapter(unityObjectsList) }
+                UserDefinedAdapters = new List<IBinaryAdapter> { new UnityObjectAdapter(unityObjectsList), new EntityAdapter() }
             };
 
             BinarySerialization.ToBinary(&stream, bakedData, parameters);
@@ -36,7 +36,7 @@ namespace Scellecs.Morpeh.EntityConverter.Serialization
             };
         }
 
-        public static List<EntityBakedData> DeserializeBakedData(SerializedBakedData serializedData) 
+        public static List<BakedData> DeserializeBakedData(SerializedBakedData serializedData)
         {
             if (serializedData.IsValid() == false)
             {
@@ -45,13 +45,13 @@ namespace Scellecs.Morpeh.EntityConverter.Serialization
 
             var parameters = new BinarySerializationParameters
             {
-                UserDefinedAdapters = new List<IBinaryAdapter> { new UnityObjectAdapter(serializedData.unityObjects, true) }
+                UserDefinedAdapters = new List<IBinaryAdapter> { new UnityObjectAdapter(serializedData.unityObjects, true), new EntityAdapter() }
             };
 
             fixed (byte* buffer = &serializedData.serializedData[0])
             {
                 var streamReader = new UnsafeAppendBuffer.Reader(buffer, serializedData.serializedData.Length);
-                return BinarySerialization.FromBinary<List<EntityBakedData>>(&streamReader, parameters);
+                return BinarySerialization.FromBinary<List<BakedData>>(&streamReader, parameters);
             }
         }
     }

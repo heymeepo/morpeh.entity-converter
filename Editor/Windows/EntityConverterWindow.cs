@@ -1,5 +1,5 @@
-using System.IO;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,10 +8,13 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 {
     public class EntityConverterWindow : EditorWindow
     {
-        private EntityConverterDatabase database;
+        private IReadOnlyEntityConverterRepository repository;
+        private EntityBakingService entityBakingService;
+
         private StyleSheet baseStyleSheet;
 
         private VisualElement scenesRoot;
+        private VisualElement optionsRoot;
 
         [MenuItem("Tools/Morpeh/Entity Converter")]
         public static void ShowWindow()
@@ -22,121 +25,157 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void CreateGUI()
         {
-            if (database == null)
+            rootVisualElement.Clear();
+
+            if (repository.IsValid == false)
             {
-                CreateDatabaseCreationButton();
+                CreateConverterDataAssetCreationButton();
                 return;
             }
 
-            Initialize();
+            LoadStyleSheet();
+            CreateScenesGUI();
+            CreateOptionsGUI();
 
-            CreateScenesEditor();
             rootVisualElement.Add(scenesRoot);
+            rootVisualElement.Add(optionsRoot);
+
+            var button = new Button(() => entityBakingService.BakeScene(AssetDatabase.AssetPathToGUID(EditorSceneManager.GetActiveScene().path)));
+            button.text = "Bake Active Scene";
+            rootVisualElement.Add(button);
         }
 
-        private void ResetGUI()
-        {
-            rootVisualElement.Clear();
-            CreateGUI();
-        }
+        private void OnEnable() => Initialize();
 
-        private void OnEnable()
-        {
-            if (LoadDatabase())
-            {
-                database.DatabaseChanged += ResetGUI;
-            }
-        }
-
-        private void OnDisable()
-        {
-            if (database != null)
-            {
-                database.DatabaseChanged -= ResetGUI;
-            }
-        }
+        private void OnDisable() => repository.RepositoryDataChanged -= CreateGUI;
 
         private void Initialize()
         {
+            repository = EntityConverterServiceProvider.Instance.Repository;
+            entityBakingService = EntityConverterServiceProvider.Instance.EntityBakingService;
+            repository.RepositoryDataChanged += CreateGUI;
+        }
+
+        private void LoadStyleSheet()
+        {
+                
             baseStyleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.scellecs.morpeh.entity-converter/Editor/Styles/EntityConverterWindow.uss");
             rootVisualElement.styleSheets.Add(baseStyleSheet);
         }
 
-        private void CreateScenesEditor()
+        private void CreateScenesGUI()
         {
             scenesRoot = new VisualElement();
 
             var scenesFoldout = new Foldout();
             scenesFoldout.AddToClassList("scenes-foldout");
             scenesFoldout.text = "Scenes";
-
             scenesRoot.Add(scenesFoldout);
 
-            var scenes = database.sceneGuids;
-
-            if (scenes.Count > 0)
+            var scenes = repository.GetSceneGuids();
+            while (scenes.MoveNext())
             {
-                for (int i = 0; i < scenes.Count; i++)
+                var sceneGuid = scenes.Current;
+                var pair = new VisualElement();
+                pair.AddToClassList("scene-scene-data-pair");
+
+                var scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
+                var sceneField = new ObjectField();
+                sceneField.AddToClassList("scene-object-field");
+                sceneField.objectType = typeof(SceneAsset);
+                sceneField.value = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+                sceneField.SetEnabled(false);
+                pair.Add(sceneField);
+
+                if (repository.TryGetSceneBakedDataAsset(sceneGuid, out var sceneBakedData))
                 {
-                    var pair = new VisualElement();
-                    pair.AddToClassList("scene-scene-data-pair");
-
-                    var scenePath = AssetDatabase.GUIDToAssetPath(scenes[i]);
-                    var sceneField = new ObjectField();
-                    sceneField.AddToClassList("scene-object-field");
-                    sceneField.objectType = typeof(SceneAsset);
-                    sceneField.value = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
-                    sceneField.SetEnabled(false);
-                    pair.Add(sceneField);
-
-                    if (database.TryGetSceneBakedDataForScene(scenes[i], out var sceneBakedData))
-                    {
-                        var bakedDataField = new ObjectField();
-                        bakedDataField.AddToClassList("scene-baked-data-field");
-                        bakedDataField.objectType = typeof(SceneBakedDataAsset);
-                        bakedDataField.value = sceneBakedData;
-                        bakedDataField.SetEnabled(false);
-                        pair.Add(bakedDataField);
-                    }
-                    else
-                    {
-                        var creationButton = new Button(() =>
-                        {
-                            if (database != null)
-                            {
-                                database.CreateSceneBakedDataAsset(scenePath);
-                            }
-                        });
-                        creationButton.AddToClassList("scene-baked-data-field");
-                        creationButton.text = "Create SceneBakedDataAsset";
-                        pair.Add(creationButton);
-                    }
-
-                    scenesFoldout.Add(pair);
+                    var bakedDataField = new ObjectField();
+                    bakedDataField.AddToClassList("scene-baked-data-field");
+                    bakedDataField.objectType = typeof(SceneBakedDataAsset);
+                    bakedDataField.value = sceneBakedData;
+                    bakedDataField.SetEnabled(false);
+                    pair.Add(bakedDataField);
                 }
+                else
+                {
+                    var creationButton = new Button(() =>
+                    {
+                        if (repository.IsValid)
+                        {
+                            var asset = EntityConverterUtility.CreateSceneBakedDataAsset(scenePath);
+                        }
+                    });
+                    creationButton.AddToClassList("scene-baked-data-field");
+                    creationButton.text = "Create SceneBakedDataAsset";
+                    pair.Add(creationButton);
+                }
+
+                scenesFoldout.Add(pair);
             }
         }
 
-        private bool LoadDatabase()
+        private void CreateOptionsGUI()
         {
-            database = EntityConverterDatabase.GetInstance();
-            return database != null;
+            //optionsRoot = new VisualElement();
+
+            //var optionsFoldout = new Foldout();
+            //optionsFoldout.AddToClassList("options-foldout");
+            //optionsFoldout.text = "Options";
+            //optionsRoot.Add(optionsFoldout);
+
+            //var bakingFlagsProperty = converterDataSerializedObject.FindProperty(nameof(EntityConverter.bakingFlags));
+
+            //var rebakeOnDomainReloadToggle = new Toggle();
+            //rebakeOnDomainReloadToggle.text = "Perform Full Rebake On Domain Reload";
+            //rebakeOnDomainReloadToggle.value = ((EntityConverterBakingFlags)bakingFlagsProperty.intValue & EntityConverterBakingFlags.BakeOnDomainReload) != 0;
+            //rebakeOnDomainReloadToggle.RegisterValueChangedCallback(v =>
+            //{
+            //    if (converterData != null)
+            //    {
+            //        bakingFlagsProperty.intValue = SetFlag(bakingFlagsProperty.intValue, EntityConverterBakingFlags.BakeOnDomainReload, v.newValue);
+            //        converterDataSerializedObject.ApplyModifiedProperties();
+            //    }
+            //});
+            //optionsFoldout.Add(rebakeOnDomainReloadToggle);
+
+            //var rebakeOnEnterPlaymodeToggle = new Toggle();
+            //rebakeOnEnterPlaymodeToggle.text = "Perform Full Rebake On Enter Playmode";
+            //rebakeOnEnterPlaymodeToggle.value = ((EntityConverterBakingFlags)bakingFlagsProperty.intValue & EntityConverterBakingFlags.BakeOnEnterPlaymode) != 0;
+            //rebakeOnEnterPlaymodeToggle.RegisterValueChangedCallback(v =>
+            //{
+            //    if (converterData != null)
+            //    {
+            //        bakingFlagsProperty.intValue = SetFlag(bakingFlagsProperty.intValue, EntityConverterBakingFlags.BakeOnEnterPlaymode, v.newValue);
+            //        converterDataSerializedObject.ApplyModifiedProperties();
+            //    }
+            //});
+            //optionsFoldout.Add(rebakeOnEnterPlaymodeToggle);
+
+            //var rebakeOnBuildToggle = new Toggle();
+            //rebakeOnBuildToggle.text = "Perform Full Rebake On Build";
+            //rebakeOnBuildToggle.value = ((EntityConverterBakingFlags)bakingFlagsProperty.intValue & EntityConverterBakingFlags.BakeOnBuild) != 0;
+            //rebakeOnBuildToggle.RegisterValueChangedCallback(v =>
+            //{
+            //    if (converterData != null)
+            //    {
+            //        bakingFlagsProperty.intValue = SetFlag(bakingFlagsProperty.intValue, EntityConverterBakingFlags.BakeOnBuild, v.newValue);
+            //        converterDataSerializedObject.ApplyModifiedProperties();
+            //    }
+            //});
+            //optionsFoldout.Add(rebakeOnBuildToggle);
         }
 
-        private void CreateDatabaseCreationButton()
+        private void CreateConverterDataAssetCreationButton()
         {
-            var createButton = new Button(() => CreateDatabaseAsset())
-            {
-                text = "Create Database"
-            };
+            var createButton = new Button(() => EntityConverterUtility.CreateDataAssetInstance());
+            createButton.text = "Create EntityConverterAsset";
             rootVisualElement.Add(createButton);
         }
 
-        private void CreateDatabaseAsset()
+        private static int SetFlag(int intFlags, EntityConverterBakingFlags flag, bool value)
         {
-            database = EntityConverterDatabase.CreateInstance();
-            database.DatabaseChanged += ResetGUI;
-            ResetGUI();
+            var flags = (EntityConverterBakingFlags)intFlags;
+            return (int)(value ? flags | flag : flags & ~flag);
         }
     }
 }

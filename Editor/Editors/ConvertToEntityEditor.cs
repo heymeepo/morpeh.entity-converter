@@ -1,70 +1,67 @@
-﻿using Scellecs.Morpeh.EntityConverter.Utilities;
-using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine.UIElements;
+﻿using UnityEditor;
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
 {
     [CustomEditor(typeof(ConvertToEntity))]
     public sealed class ConvertToEntityEditor : UnityEditor.Editor
     {
-        private ObjectField bakedDataAssetField;
-        private Toggle excludeSceneCheckbox;
+        //private ObjectField bakedDataAssetField;
+        //private Toggle excludeSceneCheckbox;
 
-        public override VisualElement CreateInspectorGUI()
-        {
-            var inspector = new VisualElement();
-            var targetGO = (target as ConvertToEntity).gameObject;
-            targetGO.tag = "EditorOnly";
+        //public override VisualElement CreateInspectorGUI()
+        //{
+        //    var inspector = new VisualElement();
+        //    var targetGO = (target as ConvertToEntity).gameObject;
+        //    targetGO.tag = "EditorOnly";
 
-            var sceneMode = PrefabUtils.IsSceneObject(targetGO);
+        //    var sceneMode = Utilities.PrefabUtility.IsSceneObject(targetGO);
 
-            if (sceneMode)
-            {
-                CreateSceneBakedDataAssetField();
-                CreateExcludeSceneCheckbox();
-            }
-            else
-            {
-                CreateBakedDataAssetField();
-            }
+        //    if (sceneMode)
+        //    {
+        //        CreateSceneBakedDataAssetField();
+        //        CreateExcludeSceneCheckbox();
+        //    }
+        //    else
+        //    {
+        //        CreateBakedDataAssetField();
+        //    }
 
-            inspector.Add(bakedDataAssetField);
+        //    inspector.Add(bakedDataAssetField);
 
-            if (sceneMode)
-            {
-                inspector.Add(excludeSceneCheckbox);
-            }
+        //    if (sceneMode)
+        //    {
+        //        inspector.Add(excludeSceneCheckbox);
+        //    }
 
-            return inspector;
-        }
+        //    return inspector;
+        //}
 
-        private void CreateBakedDataAssetField()
-        {
-            var bakedDataProperty = serializedObject.FindProperty(nameof(ConvertToEntity.bakedDataAsset));
+        //private void CreateBakedDataAssetField()
+        //{
+        //    var bakedDataProperty = serializedObject.FindProperty(nameof(ConvertToEntity.bakedDataAsset));
 
-            bakedDataAssetField = new ObjectField("Baked Data");
-            bakedDataAssetField.objectType = typeof(EntityBakedDataAsset);
-            bakedDataAssetField.SetEnabled(true);
-            bakedDataAssetField.BindProperty(bakedDataProperty);
-        }
+        //    bakedDataAssetField = new ObjectField("Baked Data");
+        //    bakedDataAssetField.objectType = typeof(PrefabBakedDataAsset);
+        //    bakedDataAssetField.SetEnabled(true);
+        //    bakedDataAssetField.BindProperty(bakedDataProperty);
+        //}
 
-        private void CreateSceneBakedDataAssetField()
-        {
-            var bakedDataProperty = serializedObject.FindProperty(nameof(ConvertToEntity.bakedDataSceneAsset));
+        //private void CreateSceneBakedDataAssetField()
+        //{
+        //    var bakedDataProperty = serializedObject.FindProperty(nameof(ConvertToEntity.bakedDataSceneAsset));
 
-            bakedDataAssetField = new ObjectField("Baked Data");
-            bakedDataAssetField.objectType = typeof(EntityBakedDataAsset);
-            bakedDataAssetField.SetEnabled(false);
-            bakedDataAssetField.BindProperty(bakedDataProperty);
-        }
+        //    bakedDataAssetField = new ObjectField("Baked Data");
+        //    bakedDataAssetField.objectType = typeof(PrefabBakedDataAsset);
+        //    bakedDataAssetField.SetEnabled(false);
+        //    bakedDataAssetField.BindProperty(bakedDataProperty);
+        //}
 
-        private void CreateExcludeSceneCheckbox()
-        {
-            var excludeSceneProperty = serializedObject.FindProperty(nameof(ConvertToEntity.excludeFromScene));
+        //private void CreateExcludeSceneCheckbox()
+        //{
+        //    var excludeSceneProperty = serializedObject.FindProperty(nameof(ConvertToEntity.excludeFromScene));
 
-            excludeSceneCheckbox = new Toggle("Exclude From Scene");
-            excludeSceneCheckbox.BindProperty(excludeSceneProperty);
-        }
+        //    excludeSceneCheckbox = new Toggle("Exclude From Scene");
+        //    excludeSceneCheckbox.BindProperty(excludeSceneProperty);
+        //}
     }
 }

@@ -12,16 +12,13 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         public override VisualElement CreateInspectorGUI()
         {
             inspector = new VisualElement();
-
             CreateSceneProperty();
-            CreateAutoRebakeToggle();
-
             return inspector;
         }
 
         private void CreateSceneProperty()
         {
-            var pathProperty = serializedObject.FindProperty(nameof(SceneBakedDataAsset.sceneGuid));
+            var pathProperty = serializedObject.FindPropertyByAutoPropertyName(nameof(SceneBakedDataAsset.SceneGuid));
 
             var sceneField = new ObjectField("Scene");
             sceneField.objectType = typeof(SceneAsset);
@@ -34,15 +31,6 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             }
 
             inspector.Add(sceneField);
-        }
-
-        private void CreateAutoRebakeToggle()
-        {
-            var rebakeProperty = serializedObject.FindProperty(nameof(SceneBakedDataAsset.autoRebakeOnAssemblyReload));
-
-            var toggle = new Toggle("Auto Rebake On Assembly Reload");
-            toggle.BindProperty(rebakeProperty);
-            inspector.Add(toggle);
         }
     }
 }

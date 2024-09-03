@@ -19,6 +19,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
                     if (asset as EntityConverterDataAsset != null)
                     {
+                        repository.Initialize();
                         repository.Reload();
                         return;
                     }

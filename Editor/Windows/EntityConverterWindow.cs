@@ -57,8 +57,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         }
 
         private void LoadStyleSheet()
-        {
-                
+        {                
             baseStyleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.scellecs.morpeh.entity-converter/Editor/Styles/EntityConverterWindow.uss");
             rootVisualElement.styleSheets.Add(baseStyleSheet);
         }

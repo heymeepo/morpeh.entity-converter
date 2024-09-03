@@ -15,6 +15,61 @@ namespace Scellecs.Morpeh.EntityConverter
             this.bakingProcessor = bakingProcessor;
         }
 
+        public void BakeGlobal()
+        {
+            if (repository.IsValid)
+            {
+                var prefabGuids = repository.GetPrefabGuids();
+                var sceneGuids = repository.GetSceneGuids();
+
+                while (prefabGuids.MoveNext())
+                {
+                    var guid = prefabGuids.Current;
+                    BakePrefab(guid);
+                }
+
+                while (sceneGuids.MoveNext()) 
+                { 
+                    var guid = sceneGuids.Current;
+                    BakeScene(guid);
+                }
+            }
+        }
+
+        public void BakePrefab(string prefabGuid)
+        {
+            if (repository.IsValid)
+            {
+                if (repository.IsPrefabGuidExists(prefabGuid))
+                {
+                    var path = AssetDatabase.GUIDToAssetPath(prefabGuid);
+                    var prefab = AssetDatabase.LoadAssetAtPath<UnityEngine.GameObject>(path);
+                    AssetDatabase.OpenAsset(prefab.GetInstanceID());
+                    var convertToEntity = prefab.GetComponent<ConvertToEntity>();
+
+                    if (convertToEntity != null) 
+                    {
+                        var bakedData = convertToEntity.bakedDataAsset;
+
+                        if (bakedData != null) 
+                        {
+                            var info = new PrefabBakingInfo()
+                            {
+                                root = convertToEntity,
+                                bakedData = bakedData
+                            };
+
+                            bakingProcessor.ExecutePrefabBake(info);
+
+                            AssetDatabase.SaveAssets();
+                            AssetDatabase.Refresh();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
         public void BakeScene(string sceneGuid)
         {
             if (repository.IsValid)
@@ -40,7 +95,7 @@ namespace Scellecs.Morpeh.EntityConverter
                     var info = new SceneBakingInfo()
                     {
                         scene = scene,
-                        sceneBakedData = bakedDataAsset
+                        bakedData = bakedDataAsset
                     };
 
                     bakingProcessor.ExecuteSceneBake(info);

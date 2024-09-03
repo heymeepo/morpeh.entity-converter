@@ -1,12 +1,10 @@
 ﻿#if UNITY_EDITOR
-using UnityEngine.SceneManagement;
-
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal struct SceneBakingInfo
+    internal struct PrefabBakingInfo
     {
         public BakedDataAsset bakedData;
-        public Scene scene;
+        public ConvertToEntity root;
     }
 }
 #endif

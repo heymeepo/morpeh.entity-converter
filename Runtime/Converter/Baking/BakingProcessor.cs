@@ -1,8 +1,9 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using static Scellecs.Morpeh.EntityConverter.BakingUtility;
+using UnityEngine.SceneManagement;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -10,19 +11,8 @@ namespace Scellecs.Morpeh.EntityConverter
     {
         private List<ScriptableObject> userContext;
 
-        public void ExecuteFullBake()
+        public void ExecutePrefabBake(PrefabBakingInfo prefabBakingInfo)
         {
-
-        }
-
-        public void ExecutePrefabBake()
-        {
-
-        }
-
-        public void ExecuteSceneBake(SceneBakingInfo sceneBakingInfo)
-        {
-            var roots = GetAllSceneRoots(sceneBakingInfo.scene);
             var lookup = new BakingLookup()
             {
                 instanceIdToIndex = new Dictionary<int, int>(),
@@ -31,12 +21,32 @@ namespace Scellecs.Morpeh.EntityConverter
             };
 
             int currentIndex = 0;
+            TraverseHierarchy(prefabBakingInfo.root, ref lookup, ref currentIndex, -1);
+            ProcessBake(lookup, prefabBakingInfo.bakedData);
+        }
+
+        public void ExecuteSceneBake(SceneBakingInfo sceneBakingInfo)
+        {
+            var lookup = new BakingLookup()
+            {
+                instanceIdToIndex = new Dictionary<int, int>(),
+                instanceIdToParentIndex = new Dictionary<int, int>(),
+                instances = new List<ConvertToEntity>()
+            };
+
+            var roots = GetAllSceneRoots(sceneBakingInfo.scene);
+            int currentIndex = 0;
 
             foreach (var root in roots)
             {
                 TraverseHierarchy(root, ref lookup, ref currentIndex, -1);
             }
 
+            ProcessBake(lookup, sceneBakingInfo.bakedData);
+        }
+
+        private void ProcessBake(BakingLookup lookup, BakedDataAsset bakedDataAsset)
+        {
             var bakedData = new List<BakedData>();
             var components = new List<SetComponentData>();
             var bakingContext = new BakingContext(components, lookup);
@@ -87,14 +97,41 @@ namespace Scellecs.Morpeh.EntityConverter
                 });
             }
 
-            sceneBakingInfo.sceneBakedData.serializedData = Serialization.SerializationUtility.SerializeBakedData(bakedData);
-            sceneBakingInfo.sceneBakedData.metadata = new BakedMetadata()
+            bakedDataAsset.serializedData = Serialization.SerializationUtility.SerializeBakedData(bakedData);
+            bakedDataAsset.metadata = new BakedMetadata()
             {
                 componentsCount = componentsCount,
                 parentChildPairsCount = parentChildPairsCount
             };
 
-            EditorUtility.SetDirty(sceneBakingInfo.sceneBakedData);
+            EditorUtility.SetDirty(bakedDataAsset);
+        }
+
+        private static void TraverseHierarchy(ConvertToEntity current, ref BakingLookup lookup, ref int currentIndex, int parentIndex)
+        {
+            var instanceId = current.gameObject.GetInstanceID();
+
+            lookup.instanceIdToIndex[instanceId] = currentIndex;
+            lookup.instanceIdToParentIndex[instanceId] = parentIndex;
+            lookup.instances.Add(current);
+
+            int currentInstanceIndex = currentIndex;
+            currentIndex++;
+
+            foreach (Transform child in current.transform)
+            {
+                var childComponent = child.GetComponent<ConvertToEntity>();
+
+                if (childComponent != null && childComponent.excludeFromScene == false)
+                {
+                    TraverseHierarchy(childComponent, ref lookup, ref currentIndex, currentInstanceIndex);
+                }
+            }
+        }
+
+        private static IEnumerable<ConvertToEntity> GetAllSceneRoots(Scene scene)
+        {
+            return scene.GetRootGameObjects().Select(x => x.GetComponent<ConvertToEntity>()).Where(c => c != null && c.excludeFromScene == false);
         }
     }
 }

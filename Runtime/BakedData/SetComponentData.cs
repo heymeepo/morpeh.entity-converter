@@ -7,13 +7,9 @@ namespace Scellecs.Morpeh.EntityConverter
     [Serializable]
     internal abstract class SetComponentData
     {
-        public abstract int GetTypeId();
-
-        public abstract int GetSize();
+        public abstract ComponentDataInfo GetInfo();
 
         public unsafe abstract void* GetDataAddress();
-
-        public abstract EntityMapInfo GetEntityMapInfo();
     }
 
     [Serializable]
@@ -21,12 +17,16 @@ namespace Scellecs.Morpeh.EntityConverter
     {
         public T data;
 
-        public override int GetTypeId() => MorpehInternalTools.GetTypeId(typeof(T));
-
-        public override int GetSize() => UnsafeUtility.SizeOf<T>();
+        public override ComponentDataInfo GetInfo()
+        {
+            return new ComponentDataInfo()
+            {
+                typeId = MorpehInternalTools.GetTypeId(typeof(T)),
+                size = UnsafeUtility.SizeOf<T>(),
+                entityMapInfo = MorpehInternalTools.GetEntityMapInfoForComponentType(typeof(T))
+            };
+        }
 
         public unsafe override void* GetDataAddress() => UnsafeUtility.AddressOf(ref data);
-
-        public override EntityMapInfo GetEntityMapInfo() => MorpehInternalTools.GetEntityMapInfoForComponentType(typeof(T));
     }
 }

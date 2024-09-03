@@ -3,6 +3,7 @@ using Scellecs.Morpeh.EntityConverter.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -13,10 +14,10 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private EntityConverterDataAsset data;
 
+        public void Initialize() => data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.ASSET_PATH);
+
         public void Reload()
         {
-            data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.ASSET_PATH);
-
             if (data != null)
             {
                 data.SceneGuids.Clear();
@@ -27,15 +28,29 @@ namespace Scellecs.Morpeh.EntityConverter
                     data.SceneGuids.Add(sceneGuid);
                 }
 
-                var guids = AssetDatabase.FindAssets("t:SceneBakedDataAsset");
+                var sceneAssetsGuids = AssetDatabase.FindAssets("t:SceneBakedDataAsset");
 
-                foreach (string guid in guids)
+                foreach (string guid in sceneAssetsGuids)
                 {
                     var asset = AssetDatabaseUtility.LoadAssetFromGuid<SceneBakedDataAsset>(guid);
 
                     if (asset != null)
                     {
                         data.SceneBakedDataAssets.Add(asset.SceneGuid, asset);
+                    }
+                }
+
+                data.AuthoringPrefabsGuids.Clear();
+                var allPrefabs = AssetDatabase.FindAssets("t:Prefab");
+
+                foreach (string prefabGUID in allPrefabs)
+                {
+                    var prefabPath = AssetDatabase.GUIDToAssetPath(prefabGUID);
+                    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+
+                    if (prefab != null && prefab.GetComponent<ConvertToEntity>() != null)
+                    {
+                        data.AuthoringPrefabsGuids.Add(prefabGUID);
                     }
                 }
 
@@ -63,6 +78,16 @@ namespace Scellecs.Morpeh.EntityConverter
             return data.SceneGuids.Contains(sceneGuid);
         }
 
+        public bool IsPrefabGuidExists(string prefabGuid) 
+        {
+            if (IsValid == false)
+            {
+                //exception
+            }
+
+            return data.AuthoringPrefabsGuids.Contains(prefabGuid);
+        }
+
         public IEnumerator<string> GetSceneGuids()
         {
             if (IsValid == false)
@@ -71,6 +96,16 @@ namespace Scellecs.Morpeh.EntityConverter
             }
 
             return data.SceneGuids.GetEnumerator();
+        }
+
+        public IEnumerator<string> GetPrefabGuids()
+        {
+            if (IsValid == false)
+            {
+                //exception
+            }
+
+            return data.AuthoringPrefabsGuids.GetEnumerator();
         }
 
         public void AddSceneBakedDataAsset(SceneBakedDataAsset asset, string assetGuid)

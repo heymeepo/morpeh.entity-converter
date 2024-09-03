@@ -119,23 +119,24 @@ namespace Scellecs.Morpeh.EntityConverter
                     var componentData = bakedData.components[j];
                     UnsafeUtility.PinGCObjectAndGetAddress(componentData, out var handle);
                     var ptr = componentData.GetDataAddress();
-                    var entityMapInfo = componentData.GetEntityMapInfo();
+                    var info = componentData.GetInfo();
+                    var entityMapInfo = info.entityMapInfo;
 
                     componentsDesc[componentsCounter++] = new SetComponentDescriptor()
                     {
                         srcPtr = ptr,
                         handle = handle,
-                        typeId = componentData.GetTypeId(),
-                        size = componentData.GetSize(),
+                        typeId = info.typeId,
+                        size = info.size,
                         entityIndex = i
                     };
 
-                    if (entityMapInfo.IsValid)
+                    if (info.entityMapInfo.IsValid)
                     {
                         for (int k = 0; k < entityMapInfo.Count; k++)
                         {
                             var localOffset = entityMapInfo[k];
-                            var dst = (byte*)componentData.GetDataAddress() + localOffset;
+                            var dst = (byte*)ptr + localOffset;
                             var packedData = *(Entity*)dst;
 
                             //The baker assigns the local index of the entity within the configuration asset to its Id.

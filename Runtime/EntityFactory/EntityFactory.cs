@@ -10,25 +10,18 @@ namespace Scellecs.Morpeh.EntityConverter
     public unsafe class EntityFactory : IDisposable
     {
         public bool IsDisposed { get; private set; }
+        public int RootEntitiesCount => rootIndices.Length;
 
-        private int entitiesCount;
         private int[] rootIndices;
+        private Entity[] entities;
         private EntityParentingInfo[] parentingInfo;
         private SetComponentDescriptor[] componentsDesc;
         private List<ResolveEntityDescriptor> entityResolveDesc;
 
         internal EntityFactory(BakedDataAsset bakedData) => DeserializeAndExpand(bakedData);
 
-        /// <summary>
-        /// Creates a hierarchy of entities based on the baked data
-        /// </summary>
-        /// <returns>
-        /// A span of entities representing the hierarchy roots, but not the full hierarchy. If no roots are present, an empty span is returned.
-        /// </returns>
-        public Span<Entity> Create(World world)
+        public void Create(World world)
         {
-            Span<Entity> entities = stackalloc Entity[entitiesCount];
-
             for (int i = 0; i < entities.Length; i++)
             {
                 entities[i] = world.CreateEntity();
@@ -63,14 +56,33 @@ namespace Scellecs.Morpeh.EntityConverter
                 int index = rootIndices[i];
                 roots[i] = entities[index];
             }
-#pragma warning disable 9080
-            return roots;
-#pragma warning restore 9080
         }
 
-        public Span<Entity> CreateAt(World world, float3 position, quaternion rotation)
+        public void Create(World world, Span<Entity> roots)
         {
-            var roots = Create(world);
+            if (roots.Length != RootEntitiesCount)
+            { 
+                //exception
+            }
+
+            Create(world);
+
+            for (int i = 0; i < rootIndices.Length; i++)
+            {
+                int index = rootIndices[i];
+                roots[i] = entities[index];
+            }
+        }
+
+        public void CreateAt(World world, float3 position, quaternion rotation)
+        {
+            Span<Entity> roots = stackalloc Entity[RootEntitiesCount];
+            CreateAt(world, position, rotation, roots);
+        }
+
+        public void CreateAt(World world, float3 position, quaternion rotation, Span<Entity> roots)
+        {
+            Create(world, roots);
 
             for (int i = 0; i < roots.Length; i++)
             {
@@ -81,8 +93,6 @@ namespace Scellecs.Morpeh.EntityConverter
                 transform.position += position;
                 transform.rotation = math.mul(transform.rotation, rotation);
             }
-
-            return roots;
         }
 
         public void Dispose()
@@ -107,7 +117,7 @@ namespace Scellecs.Morpeh.EntityConverter
             int componentsCount = bakedDataAsset.metadata.componentsCount;
             int parentChildPairsCount = bakedDataAsset.metadata.parentChildPairsCount;
 
-            entitiesCount = bakedDataList.Count;
+            entities = new Entity[bakedDataList.Count];
             parentingInfo = new EntityParentingInfo[parentChildPairsCount];
             componentsDesc = new SetComponentDescriptor[componentsCount];
             entityResolveDesc = new List<ResolveEntityDescriptor>();
@@ -116,7 +126,7 @@ namespace Scellecs.Morpeh.EntityConverter
             int parentingCounter = 0;
             int rootsCounter = 0;
 
-            for (int i = 0; i < entitiesCount; i++)
+            for (int i = 0; i < RootEntitiesCount; i++)
             {
                 var bakedData = bakedDataList[i];
 

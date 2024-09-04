@@ -118,6 +118,7 @@ namespace Scellecs.Morpeh.EntityConverter
             int parentChildPairsCount = bakedDataAsset.metadata.parentChildPairsCount;
 
             entities = new Entity[bakedDataList.Count];
+            rootIndices = new int[entities.Length - parentChildPairsCount];
             parentingInfo = new EntityParentingInfo[parentChildPairsCount];
             componentsDesc = new SetComponentDescriptor[componentsCount];
             entityResolveDesc = new List<ResolveEntityDescriptor>();
@@ -126,7 +127,7 @@ namespace Scellecs.Morpeh.EntityConverter
             int parentingCounter = 0;
             int rootsCounter = 0;
 
-            for (int i = 0; i < RootEntitiesCount; i++)
+            for (int i = 0; i < entities.Length; i++)
             {
                 var bakedData = bakedDataList[i];
 

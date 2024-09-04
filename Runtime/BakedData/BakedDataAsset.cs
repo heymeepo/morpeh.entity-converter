@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    public abstract class BakedDataAsset : ScriptableObject
+    public abstract class BakedDataAsset : ScriptableObject, IDisposable
     {
         [SerializeField]
         internal SerializedBakedData serializedData;
@@ -22,6 +22,14 @@ namespace Scellecs.Morpeh.EntityConverter
             }
 
             return factory;
+        }
+
+        public void Dispose()
+        {
+            if (factory == null || factory.IsDisposed)
+            {
+                factory.Dispose();
+            }
         }
     }
 }

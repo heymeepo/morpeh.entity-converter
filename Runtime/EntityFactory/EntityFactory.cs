@@ -48,14 +48,6 @@ namespace Scellecs.Morpeh.EntityConverter
                 var entity = entities[descriptor.entityIndex];
                 MorpehInternalTools.SetComponentUnsafe(entity, descriptor.typeId, descriptor.srcPtr, descriptor.size);
             }
-
-            Span<Entity> roots = stackalloc Entity[rootIndices.Length];
-
-            for (int i = 0; i < rootIndices.Length; i++)
-            {
-                int index = rootIndices[i];
-                roots[i] = entities[index];
-            }
         }
 
         public void Create(World world, Span<Entity> roots)

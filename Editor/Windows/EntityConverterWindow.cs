@@ -105,7 +105,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                         }
                     });
                     creationButton.AddToClassList("scene-baked-data-field");
-                    creationButton.text = "Create SceneBakedDataAsset";
+                    creationButton.text = "Create Scene Baked Data Asset";
                     pair.Add(creationButton);
                 }
 
@@ -167,7 +167,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         private void CreateConverterDataAssetCreationButton()
         {
             var createButton = new Button(() => EntityConverterUtility.CreateDataAssetInstance());
-            createButton.text = "Create EntityConverterAsset";
+            createButton.text = "Create Entity Converter Asset";
             rootVisualElement.Add(createButton);
         }
 

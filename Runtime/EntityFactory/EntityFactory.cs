@@ -17,7 +17,7 @@ namespace Scellecs.Morpeh.EntityConverter
         private SetComponentDescriptor[] componentsDesc;
         private List<ResolveEntityDescriptor> entityResolveDesc;
 
-        public EntityFactory(BakedDataAsset bakedData) => DeserializeAndExpand(bakedData);
+        internal EntityFactory(BakedDataAsset bakedData) => DeserializeAndExpand(bakedData);
 
         /// <summary>
         /// Creates a hierarchy of entities based on the baked data

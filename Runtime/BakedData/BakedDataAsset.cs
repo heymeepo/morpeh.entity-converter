@@ -26,7 +26,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void Dispose()
         {
-            if (factory == null || factory.IsDisposed)
+            if (factory != null && factory.IsDisposed == false)
             {
                 factory.Dispose();
             }

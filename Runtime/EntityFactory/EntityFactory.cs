@@ -6,51 +6,19 @@ using Scellecs.Morpeh.Transforms;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    public unsafe struct EntityFactory : IDisposable
+    public unsafe class EntityFactory : IDisposable
     {
-        private BakedDataAsset bakedData;
-        private World world;
+        public bool IsDisposed { get; private set; }
 
         private Entity[] entities;
         private EntityParentingInfo[] parentingInfo;
         private SetComponentDescriptor[] componentsDesc;
         private List<ResolveEntityDescriptor> entityResolveDesc;
 
-        private bool intialized;
-        private bool disposed;
+        public EntityFactory(BakedDataAsset bakedData) => DeserializeAndExpand(bakedData);
 
-        public void Init(BakedDataAsset bakedData, World world)
+        public void Create(World world)
         {
-            if (bakedData == null || world.IsNullOrDisposed())
-            {
-                //exception
-            }
-
-            if (intialized)
-            {
-                //warning
-                return;
-            }
-
-            if (disposed)
-            {
-                //warning
-                return;
-            }
-
-            this.bakedData = bakedData;
-            this.world = world;
-
-            DeserializeAndExpand();
-        }
-
-        public void Create()
-        {
-            if (bakedData == null)
-            {
-                //exception
-            }
-
             for (int i = 0; i < entities.Length; i++)
             {
                 entities[i] = world.CreateEntity();
@@ -81,7 +49,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void Dispose()
         {
-            if (intialized && disposed == false)
+            if (IsDisposed == false)
             {
                 for (int i = 0; i < componentsDesc.Length; i++)
                 {
@@ -90,17 +58,17 @@ namespace Scellecs.Morpeh.EntityConverter
                     UnsafeUtility.ReleaseGCObject(decriptor.handle);
                 }
 
-                disposed = true;
+                IsDisposed = true;
             }
         }
 
-        private void DeserializeAndExpand()
+        private void DeserializeAndExpand(BakedDataAsset bakedDataAsset)
         {
-            var bakedDataList = Scellecs.Morpeh.EntityConverter.Serialization.SerializationUtility.DeserializeBakedData(bakedData.serializedData);
+            var bakedDataList = Scellecs.Morpeh.EntityConverter.Serialization.SerializationUtility.DeserializeBakedData(bakedDataAsset.serializedData);
 
             int entitiesCount = bakedDataList.Count;
-            int componentsCount = bakedData.metadata.componentsCount;
-            int parentChildPairsCount = bakedData.metadata.parentChildPairsCount;
+            int componentsCount = bakedDataAsset.metadata.componentsCount;
+            int parentChildPairsCount = bakedDataAsset.metadata.parentChildPairsCount;
 
             entities = new Entity[entitiesCount];
             parentingInfo = new EntityParentingInfo[parentChildPairsCount];

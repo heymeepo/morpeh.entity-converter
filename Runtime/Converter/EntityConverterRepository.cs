@@ -18,7 +18,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void Reload()
         {
-            if (data != null)
+            if (IsValid)
             {
                 data.SceneGuids.Clear();
                 data.SceneBakedDataAssets.Clear();
@@ -43,14 +43,14 @@ namespace Scellecs.Morpeh.EntityConverter
                 data.AuthoringPrefabsGuids.Clear();
                 var allPrefabs = AssetDatabase.FindAssets("t:Prefab");
 
-                foreach (string prefabGUID in allPrefabs)
+                foreach (string prefabGuid in allPrefabs)
                 {
-                    var prefabPath = AssetDatabase.GUIDToAssetPath(prefabGUID);
+                    var prefabPath = AssetDatabase.GUIDToAssetPath(prefabGuid);
                     var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
 
                     if (prefab != null && prefab.GetComponent<ConvertToEntity>() != null)
                     {
-                        data.AuthoringPrefabsGuids.Add(prefabGUID);
+                        data.AuthoringPrefabsGuids.Add(prefabGuid);
                     }
                 }
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -9,5 +10,18 @@ namespace Scellecs.Morpeh.EntityConverter
 
         [SerializeField]
         internal BakedMetadata metadata;
+
+        [NonSerialized]
+        internal EntityFactory factory;
+
+        public EntityFactory GetFactory()
+        {
+            if (factory == null || factory.IsDisposed)
+            {
+                factory = new EntityFactory(this);
+            }
+
+            return factory;
+        }
     }
 }

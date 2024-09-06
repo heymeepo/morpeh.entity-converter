@@ -46,12 +46,12 @@ namespace Scellecs.Morpeh.EntityConverter
                 {
                     if (a is SceneBakedDataAsset bakedData)
                     {
-                        var assetInfo = CreateAssetGuidInfo(assetPath, AssetGUIDType.SceneBakedData, bakedData.SceneGuid);
+                        var assetInfo = CreateAssetGUIDInfo(assetPath, AssetGUIDType.SceneBakedData, bakedData.SceneGuid);
                         repository.AddAsset(a, assetInfo);
                     }
                     else if (a is SceneAsset)
                     {
-                        var assetInfo = CreateAssetGuidInfo(assetPath, AssetGUIDType.Scene, string.Empty);
+                        var assetInfo = CreateAssetGUIDInfo(assetPath, AssetGUIDType.Scene, string.Empty);
                         repository.AddAsset(a, assetInfo);
                     }
                 }
@@ -78,7 +78,7 @@ namespace Scellecs.Morpeh.EntityConverter
             return result;
         }
 
-        private static AssetGUIDInfo CreateAssetGuidInfo(string assetPath, AssetGUIDType type, string registrationGUID)
+        private static AssetGUIDInfo CreateAssetGUIDInfo(string assetPath, AssetGUIDType type, string registrationGUID)
         {
             var assetGuid = AssetDatabase.AssetPathToGUID(assetPath);
             var regGUID = registrationGUID == string.Empty ? assetGuid : registrationGUID;

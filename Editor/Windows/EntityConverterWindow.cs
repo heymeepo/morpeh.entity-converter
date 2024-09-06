@@ -72,9 +72,9 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             scenesRoot.Add(scenesFoldout);
 
             var scenes = repository.GetSceneGuids();
-            while (scenes.MoveNext())
+
+            foreach (var sceneGuid in scenes)
             {
-                var sceneGuid = scenes.Current;
                 var pair = new VisualElement();
                 pair.AddToClassList("scene-scene-data-pair");
 

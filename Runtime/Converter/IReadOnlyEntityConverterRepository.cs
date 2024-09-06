@@ -16,9 +16,9 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public bool IsPrefabGuidExists(string prefabGuid);
 
-        public IEnumerator<string> GetSceneGuids();
+        public IEnumerable<string> GetSceneGuids();
 
-        public IEnumerator<string> GetPrefabGuids();
+        public IEnumerable<string> GetPrefabGuids();
     }
 }
 #endif

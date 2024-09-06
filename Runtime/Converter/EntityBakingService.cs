@@ -22,15 +22,13 @@ namespace Scellecs.Morpeh.EntityConverter
                 var prefabGuids = repository.GetPrefabGuids();
                 var sceneGuids = repository.GetSceneGuids();
 
-                while (prefabGuids.MoveNext())
+                foreach (var guid in prefabGuids)
                 {
-                    var guid = prefabGuids.Current;
                     BakePrefab(guid);
                 }
 
-                while (sceneGuids.MoveNext()) 
-                { 
-                    var guid = sceneGuids.Current;
+                foreach (var guid in sceneGuids)
+                {
                     BakeScene(guid);
                 }
             }

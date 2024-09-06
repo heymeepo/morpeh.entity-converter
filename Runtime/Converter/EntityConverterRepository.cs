@@ -112,24 +112,24 @@ namespace Scellecs.Morpeh.EntityConverter
             return data.AuthoringPrefabGUIDs.Contains(prefabGuid);
         }
 
-        public IEnumerator<string> GetSceneGuids()
+        public IEnumerable<string> GetSceneGuids()
         {
             if (IsValid == false)
             {
                 //exception
             }
 
-            return data.SceneGUIDs.GetEnumerator();
+            return data.SceneGUIDs;
         }
 
-        public IEnumerator<string> GetPrefabGuids()
+        public IEnumerable<string> GetPrefabGuids()
         {
             if (IsValid == false)
             {
                 //exception
             }
 
-            return data.AuthoringPrefabGUIDs.GetEnumerator();
+            return data.AuthoringPrefabGUIDs;
         }
 
         public void AddAsset(UnityEngine.Object asset, AssetGUIDInfo assetInfo)

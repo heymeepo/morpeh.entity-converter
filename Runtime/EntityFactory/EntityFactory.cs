@@ -52,14 +52,14 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void Create(World world, Span<Entity> roots)
         {
-            if (roots.Length != RootEntitiesCount)
+            if (roots.Length < RootEntitiesCount)
             { 
                 //exception
             }
 
             Create(world);
 
-            for (int i = 0; i < rootIndices.Length; i++)
+            for (int i = 0; i < RootEntitiesCount; i++)
             {
                 int index = rootIndices[i];
                 roots[i] = entities[index];

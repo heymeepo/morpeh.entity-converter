@@ -40,7 +40,7 @@ GameObjects are used as configurations for future entities. They are only needed
 > Any **```: EcsAuthoring```** must be wrapped in the ```#if UNITY_EDITOR``` directive.
 
 ### Getting started
-First, you need to create an global entity converter asset.
+First, you need to create a global entity converter asset.
 
 To do this, go to **Tools -> Morpeh -> Entity Converter**, and click the ``Create Entity Converter Asset`` button. This will create a main asset in the Plugins folder to store all data and settings for the converter. In this window, you can create assets for baking scenes, adjust settings, and manually manage the baking process.
 
@@ -187,7 +187,7 @@ public struct VehicleComponent : IComponent
 > GameObjects that you assign to ``EntityLink`` through the editor must be part of the same hierarchy where you are assigning them. The GameObject must either be part of the same prefab or, in the case of baking scenes, be located in the same scene.
 
 > [!WARNING]
-> There is one important limitation. Еntities in your components, you want to assign from editor, cannot be placed inside managed types or arrays. This means you can have such structures in your components, but you cannot pass entities into them using ``BakingContext.GetEntityFromLink()``. In the future, there will be an option to pass them into fixed-size arrays.
+> There is one important limitation. Еntities in your components, you want to assign from editor, cannot be placed inside managed types or arrays. This means you can have such constructions in your components, but you cannot pass entities into them using ``BakingContext.GetEntityFromLink()``. In the future, there will be an option to pass them into fixed-size arrays.
 
 ```csharp
 public struct AwesomeComponent : IComponent

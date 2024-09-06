@@ -1,6 +1,4 @@
 ﻿#if UNITY_EDITOR
-using UnityEditor;
-
 namespace Scellecs.Morpeh.EntityConverter
 {
     internal sealed class EntityConverter
@@ -20,25 +18,6 @@ namespace Scellecs.Morpeh.EntityConverter
             bakingProcessor = new BakingProcessor();
             bakingService = new EntityBakingService(repository, bakingProcessor);
             serviceProvider = EntityConverterServiceProvider.CreateInstance(repository, bakingService);
-
-            repository.Initialize();
-
-            if (CheckEditorSession())
-            {
-                repository.Reload();
-            }
-        }
-
-        private bool CheckEditorSession()
-        {
-            var result = SessionState.GetBool("EditorSessionStarted", false);
-
-            if (result == false)
-            {
-                SessionState.SetBool("EditorSessionStarted", true);
-            }
-
-            return result;
         }
     }
 }

@@ -14,10 +14,10 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private EntityConverterDataAsset data;
 
-        public void Initialize() => data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.ASSET_PATH);
-
-        public void Reload()
+        public void Initialize()
         {
+            Reload();
+
             if (IsValid)
             {
                 data.SceneGuids.Clear();
@@ -57,6 +57,8 @@ namespace Scellecs.Morpeh.EntityConverter
                 SaveDataAndNotifyChanged();
             }
         }
+
+        public void Reload() => data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.DATA_ASSET_PATH);
 
         public bool TryGetSceneBakedDataAsset(string sceneGuid, out SceneBakedDataAsset sceneBakedData)
         {

@@ -11,6 +11,17 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
         {
+            if (IsOnPostprocessAllAssetsFirstSessionCall())
+            {
+                repository.Initialize();
+                return;
+            }
+
+            if (didDomainReload)
+            {
+                repository.Reload();
+            }
+
             if (repository.IsValid == false)
             {
                 foreach (var assetPath in importedAssets)
@@ -20,7 +31,6 @@ namespace Scellecs.Morpeh.EntityConverter
                     if (asset as EntityConverterDataAsset != null)
                     {
                         repository.Initialize();
-                        repository.Reload();
                         return;
                     }
                 }
@@ -62,6 +72,18 @@ namespace Scellecs.Morpeh.EntityConverter
             {
                 repository.SaveDataAndNotifyChanged();
             }
+        }
+
+        public static bool IsOnPostprocessAllAssetsFirstSessionCall()
+        {
+            var result = SessionState.GetBool(EntityConverterUtility.ON_POSTPROCESS_ALL_ASSETS_CALLED_FIRST_TIME_KEYWORD, false);
+
+            if (result == false)
+            {
+                SessionState.SetBool(EntityConverterUtility.ON_POSTPROCESS_ALL_ASSETS_CALLED_FIRST_TIME_KEYWORD, true);
+            }
+
+            return result == false;
         }
     }
 }

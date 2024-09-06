@@ -62,7 +62,6 @@ namespace Scellecs.Morpeh.EntityConverter
                             bakingProcessor.ExecutePrefabBake(info);
 
                             AssetDatabase.SaveAssets();
-                            AssetDatabase.Refresh();
                             return;
                         }
                     }
@@ -106,7 +105,6 @@ namespace Scellecs.Morpeh.EntityConverter
                     }
 
                     AssetDatabase.SaveAssets();
-                    AssetDatabase.Refresh();
 
                     if (string.IsNullOrEmpty(prevScenePath) == false && prevScenePath != "Null")
                     {

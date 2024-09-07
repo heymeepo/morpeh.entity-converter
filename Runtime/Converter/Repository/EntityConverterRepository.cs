@@ -3,6 +3,7 @@ using Scellecs.Morpeh.EntityConverter.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
@@ -10,6 +11,7 @@ namespace Scellecs.Morpeh.EntityConverter
     internal sealed class EntityConverterRepository : IReadOnlyEntityConverterRepository
     {
         public bool IsValid => data != null;
+        public bool IsDirty { get; private set; } = false;
         public event Action RepositoryDataChanged;
 
         private EntityConverterDataAsset data;
@@ -31,31 +33,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
                 foreach (var guid in sceneGUIDs)
                 {
-                    var assetInfo = new AssetGUIDInfo()
-                    {
-                        assetGUID = guid,
-                        registrationGUID = guid,
-                        type = AssetGUIDType.Scene
-                    };
-
-                    AddAsset(null, assetInfo);
-                }
-
-                foreach (string guid in sceneBakedDataAssetsGUIDs)
-                {
-                    var asset = AssetDatabaseUtility.LoadAssetFromGuid<SceneBakedDataAsset>(guid);
-
-                    if (asset != null)
-                    {
-                        var assetInfo = new AssetGUIDInfo()
-                        {
-                            assetGUID = guid,
-                            registrationGUID = asset.SceneGuid,
-                            type = AssetGUIDType.SceneBakedData
-                        };
-
-                        AddAsset(asset, assetInfo);
-                    }
+                    AddScene(guid);
                 }
 
                 foreach (string guid in prefabAssetsGUIDs)
@@ -65,17 +43,21 @@ namespace Scellecs.Morpeh.EntityConverter
 
                     if (prefab != null && prefab.GetComponent<ConvertToEntity>() != null)
                     {
-                        var assetInfo = new AssetGUIDInfo()
-                        {
-                            assetGUID = guid,
-                            registrationGUID = guid,
-                            type = AssetGUIDType.AuthoringPrefab
-                        };
-
-                        AddAsset(null, assetInfo);
+                        AddPrefab(guid);
                     }
                 }
 
+                foreach (string guid in sceneBakedDataAssetsGUIDs)
+                {
+                    var asset = AssetDatabaseUtility.LoadAssetFromGuid<SceneBakedDataAsset>(guid);
+
+                    if (asset != null)
+                    {
+                        AddSceneBakedData(guid, asset);
+                    }
+                }
+
+                IsDirty = true;
                 SaveDataAndNotifyChanged();
             }
         }
@@ -132,36 +114,67 @@ namespace Scellecs.Morpeh.EntityConverter
             return data.AuthoringPrefabGUIDs;
         }
 
-        public void AddAsset(UnityEngine.Object asset, AssetGUIDInfo assetInfo)
+        public void AddScene(string sceneGUID)
         {
             if (IsValid == false)
             {
                 //exception
             }
 
-            var type = assetInfo.type;
-
-            if (data.AssetGUIDInfos.ContainsKey(assetInfo.assetGUID) == false)
+            if (data.AssetGUIDInfos.ContainsKey(sceneGUID) == false)
             {
-                if (type == AssetGUIDType.Scene)
+                data.SceneGUIDs.Add(sceneGUID);
+                data.AssetGUIDInfos.Add(sceneGUID, new AssetGUIDInfo()
                 {
-                    data.SceneGUIDs.Add(assetInfo.registrationGUID);
-                    data.AssetGUIDInfos.Add(assetInfo.assetGUID, assetInfo);
-                }
-                else if (type == AssetGUIDType.AuthoringPrefab)
-                {
-                    data.AuthoringPrefabGUIDs.Add(assetInfo.registrationGUID);
-                    data.AssetGUIDInfos.Add(assetInfo.assetGUID, assetInfo);
-                }
-                else if (type == AssetGUIDType.SceneBakedData)
-                {
-                    data.SceneBakedDataAssets.Add(assetInfo.registrationGUID, asset as SceneBakedDataAsset);
-                    data.AssetGUIDInfos.Add(assetInfo.assetGUID, assetInfo);
-                }
-                else if (type == AssetGUIDType.PrefabBakedData)
-                {
+                    type = AuthoringType.Scene,
+                    assetGUID = sceneGUID,
+                    registrationGUID = sceneGUID
+                });
 
-                }
+                IsDirty = true;
+            }
+        }
+
+        public void AddPrefab(string prefabGUID)
+        {
+            if (IsValid == false)
+            {
+                //exception
+            }
+
+            if (data.AssetGUIDInfos.ContainsKey(prefabGUID) == false)
+            {
+                data.AuthoringPrefabGUIDs.Add(prefabGUID);
+                data.AssetGUIDInfos.Add(prefabGUID, new AssetGUIDInfo()
+                {
+                    type = AuthoringType.Prefab,
+                    assetGUID = prefabGUID,
+                    registrationGUID = prefabGUID
+                });
+
+                IsDirty = true;
+            }
+        }
+
+        public void AddSceneBakedData(string assetGUID, SceneBakedDataAsset sceneAsset)
+        {
+            if (IsValid == false)
+            {
+                //exception
+            }
+
+            if (data.AssetGUIDInfos.ContainsKey(assetGUID) == false)
+            {
+                var sceneGUID = sceneAsset.SceneGuid;
+                data.SceneBakedDataAssets.Add(sceneGUID, sceneAsset);
+                data.AssetGUIDInfos.Add(assetGUID, new AssetGUIDInfo()
+                {
+                    type = AuthoringType.SceneBakedData,
+                    assetGUID = assetGUID,
+                    registrationGUID = sceneGUID
+                });
+
+                IsDirty = true;
             }
         }
 
@@ -176,7 +189,7 @@ namespace Scellecs.Morpeh.EntityConverter
             {
                 var type = assetInfo.type;
 
-                if (type == AssetGUIDType.Scene)
+                if (type == AuthoringType.Scene)
                 {
                     data.SceneGUIDs.Remove(assetInfo.registrationGUID);
                     data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
@@ -188,26 +201,28 @@ namespace Scellecs.Morpeh.EntityConverter
                         AssetDatabase.DeleteAsset(assetPath);
                     }
                 }
-                else if (type == AssetGUIDType.AuthoringPrefab)
+                else if (type == AuthoringType.Prefab)
                 {
                     data.AuthoringPrefabGUIDs.Remove(assetInfo.registrationGUID);
                     data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
                 }
-                else if (type == AssetGUIDType.SceneBakedData)
+                else if (type == AuthoringType.SceneBakedData)
                 {
                     data.SceneBakedDataAssets.Remove(assetInfo.registrationGUID);
                     data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
                 }
-                else if (type == AssetGUIDType.PrefabBakedData)
+                else if (type == AuthoringType.PrefabBakedData)
                 {
 
                 }
+
+                IsDirty = true;
             }
         }
 
         public void SaveDataAndNotifyChanged()
         {
-            if (IsValid == false)
+            if (IsValid == false || IsDirty == false)
             {
                 return;
             }

@@ -4,12 +4,12 @@ using UnityEditor.SceneManagement;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal sealed class EntityBakingService
+    internal sealed class AuthoringBakingService
     {
         private readonly IReadOnlyEntityConverterRepository repository;
         private readonly BakingProcessor bakingProcessor;
 
-        public EntityBakingService(IReadOnlyEntityConverterRepository repository, BakingProcessor bakingProcessor)
+        public AuthoringBakingService(IReadOnlyEntityConverterRepository repository, BakingProcessor bakingProcessor)
         {
             this.repository = repository;
             this.bakingProcessor = bakingProcessor;
@@ -41,8 +41,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 if (repository.IsPrefabGuidExists(prefabGuid))
                 {
                     var path = AssetDatabase.GUIDToAssetPath(prefabGuid);
-                    var prefab = AssetDatabase.LoadAssetAtPath<UnityEngine.GameObject>(path);
-                    AssetDatabase.OpenAsset(prefab.GetInstanceID());
+                    var prefab = PrefabUtility.LoadPrefabContents(path);
                     var convertToEntity = prefab.GetComponent<ConvertToEntity>();
 
                     if (convertToEntity != null) 
@@ -58,11 +57,12 @@ namespace Scellecs.Morpeh.EntityConverter
                             };
 
                             bakingProcessor.ExecutePrefabBake(info);
-
                             AssetDatabase.SaveAssets();
                             return;
                         }
                     }
+
+                    PrefabUtility.UnloadPrefabContents(prefab);
                 }
             }
         }

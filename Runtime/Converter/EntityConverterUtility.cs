@@ -8,7 +8,7 @@ namespace Scellecs.Morpeh.EntityConverter
     internal static class EntityConverterUtility
     {
         public const string DATA_ASSET_PATH = "Assets/Plugins/Scellecs/Morpeh Entity Converter/Assets/EntityConverterDataAsset.asset";
-        public const string REPOSITORY_INTIALIZE_FIRST_TIME_CALLED = "_REPOSITORY_INTIALIZE_FIRST_TIME_CALLED";
+        public const string REPOSITORY_INITIALIZE_FIRST_TIME_CALLED = "_REPOSITORY_INITIALIZE_FIRST_TIME_CALLED";
 
         public static EntityConverterDataAsset CreateDataAssetInstance()
         {

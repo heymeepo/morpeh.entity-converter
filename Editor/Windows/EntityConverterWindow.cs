@@ -2,6 +2,7 @@
 using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
@@ -9,7 +10,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
     public class EntityConverterWindow : EditorWindow
     {
         private IReadOnlyEntityConverterRepository repository;
-        private EntityBakingService entityBakingService;
+        private AuthoringBakingService entityBakingService;
 
         private StyleSheet baseStyleSheet;
 
@@ -43,6 +44,10 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             var button = new Button(() => entityBakingService.BakeScene(AssetDatabase.AssetPathToGUID(EditorSceneManager.GetActiveScene().path)));
             button.text = "Bake Active Scene";
             rootVisualElement.Add(button);
+
+            var button2 = new Button(() => entityBakingService.BakePrefab(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Selection.activeGameObject))));
+            button2.text = "Bake Active GO";
+            rootVisualElement.Add(button2);
         }
 
         private void OnEnable() => Initialize();
@@ -57,7 +62,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         }
 
         private void LoadStyleSheet()
-        {                
+        {
             baseStyleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Packages/com.scellecs.morpeh.entity-converter/Editor/Styles/EntityConverterWindow.uss");
             rootVisualElement.styleSheets.Add(baseStyleSheet);
         }

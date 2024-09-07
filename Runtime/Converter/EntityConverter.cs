@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Scellecs.Morpeh.EntityConverter.Utilities;
 using System.Collections.Generic;
 
 namespace Scellecs.Morpeh.EntityConverter
@@ -28,7 +29,8 @@ namespace Scellecs.Morpeh.EntityConverter
             var postprocessors = new List<AssetPostprocessSystem>()
             {
                 new ValidateRepositoryPostprocesor(repository),
-                new AutoRebakingPostprocessor(bakingService)
+                new AutoRebakingPostprocessor(bakingService),
+                new RestoreActiveSelectionPostprocessor()
             };
 
             assetPostprocessor = new EntityConverterAssetPostprocessor(postprocessors);

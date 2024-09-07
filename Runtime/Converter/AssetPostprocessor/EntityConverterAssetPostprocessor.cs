@@ -7,19 +7,24 @@ namespace Scellecs.Morpeh.EntityConverter
 {
     internal sealed class EntityConverterAssetPostprocessor : AssetPostprocessor
     {
-        private static List<AssetPostprocessSystem> postprocessors = new List<AssetPostprocessSystem>();
+        private static EntityConverterAssetPostprocessor instance;
+        private List<AssetPostprocessSystem> postprocessors = new List<AssetPostprocessSystem>();
 
-        public EntityConverterAssetPostprocessor(List<AssetPostprocessSystem> postprocessors) => EntityConverterAssetPostprocessor.postprocessors = postprocessors;
+        public EntityConverterAssetPostprocessor(List<AssetPostprocessSystem> postprocessors)
+        { 
+            this.postprocessors = postprocessors;
+            instance = this;
+        }
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
         {
-            if (postprocessors == null || postprocessors.Count == 0)
+            if (instance.postprocessors == null || instance.postprocessors.Count == 0)
             {
                 return;
             }
 
             var importedAuthorings = new List<ImportedAuthoringData>();
-
+            
             foreach (var assetPath in importedAssets)
             {
                 var asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath);
@@ -29,11 +34,11 @@ namespace Scellecs.Morpeh.EntityConverter
                 {
                     var authoringType = AuthoringType.None;
 
-                    if (asset is SceneBakedDataAsset)
+                    if (asset is SceneAsset)
                     {
-                        authoringType = AuthoringType.SceneBakedData;
+                        authoringType = AuthoringType.Scene;
                     }
-                    else if (asset is SceneAsset)
+                    else if (asset is SceneBakedDataAsset)
                     {
                         authoringType = AuthoringType.SceneBakedData;
                     }
@@ -64,7 +69,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 importedAuthorings,
                 didDomainReload);
 
-            foreach (var postrpocessor in postprocessors) 
+            foreach (var postrpocessor in instance.postprocessors) 
             {
                 postrpocessor.Execute(context);
             }

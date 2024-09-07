@@ -15,11 +15,11 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public override void Execute(OnAssetPostprocessContext context)
         {
-            if (context.DidDomainReload)
-            {
-                bakingService.BakeGlobal();
-                return;
-            }
+            //if (context.DidDomainReload)
+            //{
+            //    bakingService.BakeGlobal();
+            //    return;
+            //}
 
             foreach (var importedAuthoringData in context.ImportedAuthorings)
             {
@@ -41,8 +41,8 @@ namespace Scellecs.Morpeh.EntityConverter
             bakingService.BakePrefab(prefabGUID);
         }
 
-        private void RebakeScene(string sceneGUID) 
-        { 
+        private void RebakeScene(string sceneGUID)
+        {
             bakingService.BakeScene(sceneGUID);
         }
     }

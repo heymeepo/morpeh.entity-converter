@@ -197,7 +197,9 @@ namespace Scellecs.Morpeh.EntityConverter
                     if (data.SceneBakedDataAssets.TryGetValue(assetInfo.assetGUID, out var sceneBakedData))
                     {
                         var assetPath = AssetDatabase.GetAssetPath(sceneBakedData);
+                        var assetGUID = AssetDatabase.AssetPathToGUID(assetPath);
                         data.SceneBakedDataAssets.Remove(assetInfo.assetGUID);
+                        data.AssetGUIDInfos.Remove(assetGUID);
                         AssetDatabase.DeleteAsset(assetPath);
                     }
                 }

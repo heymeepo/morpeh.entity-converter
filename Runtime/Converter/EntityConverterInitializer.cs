@@ -1,7 +1,5 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.Experimental;
-using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
 {

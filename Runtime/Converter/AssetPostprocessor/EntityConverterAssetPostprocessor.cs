@@ -8,11 +8,11 @@ namespace Scellecs.Morpeh.EntityConverter
     internal sealed class EntityConverterAssetPostprocessor : AssetPostprocessor
     {
         private static EntityConverterAssetPostprocessor instance;
-        private List<AssetPostprocessSystem> postprocessors = new List<AssetPostprocessSystem>();
+        private List<IAssetPostprocessSystem> postprocessors = new List<IAssetPostprocessSystem>();
 
         private EntityConverterAssetPostprocessor() { }
 
-        public static EntityConverterAssetPostprocessor CreateInstance(List<AssetPostprocessSystem> postprocessors)
+        public static EntityConverterAssetPostprocessor CreateInstance(List<IAssetPostprocessSystem> postprocessors)
         {
             instance ??= new EntityConverterAssetPostprocessor()
             {

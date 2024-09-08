@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal interface IReadOnlyEntityConverterRepository
+    public interface IReadOnlyEntityConverterRepository
     {
         public bool IsValid { get; }
 

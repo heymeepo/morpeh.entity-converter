@@ -4,7 +4,7 @@ using UnityEditor.SceneManagement;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal sealed class AuthoringBakingService
+    internal sealed class AuthoringBakingService : IAuthoringBakingService
     {
         private readonly IReadOnlyEntityConverterRepository repository;
         private readonly BakingProcessor bakingProcessor;
@@ -34,13 +34,13 @@ namespace Scellecs.Morpeh.EntityConverter
             }
         }
 
-        public void BakePrefab(string prefabGuid)
+        public void BakePrefab(string prefabGUID)
         {
             if (repository.IsValid)
             {
-                if (repository.IsPrefabGuidExists(prefabGuid))
+                if (repository.IsPrefabGuidExists(prefabGUID))
                 {
-                    var path = AssetDatabase.GUIDToAssetPath(prefabGuid);
+                    var path = AssetDatabase.GUIDToAssetPath(prefabGUID);
                     var prefab = PrefabUtility.LoadPrefabContents(path);
 
                     if (prefab.TryGetComponent(out ConvertToEntity convertToEntity)) 
@@ -65,15 +65,15 @@ namespace Scellecs.Morpeh.EntityConverter
             }
         }
 
-        public void BakeScene(string sceneGuid)
+        public void BakeScene(string sceneGUID)
         {
             if (repository.IsValid)
             {
-                if (repository.TryGetSceneBakedDataAsset(sceneGuid, out var bakedDataAsset))
+                if (repository.TryGetSceneBakedDataAsset(sceneGUID, out var bakedDataAsset))
                 {
                     var prevScene = EditorSceneManager.GetActiveScene();
                     var prevScenePath = prevScene.path;
-                    var scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGuid);
+                    var scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
 
                     if (scene.IsValid() == false)
                     {
@@ -82,9 +82,9 @@ namespace Scellecs.Morpeh.EntityConverter
                             EditorSceneManager.SaveScene(prevScene);
                         }
 
-                        var scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
+                        var scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
                         EditorSceneManager.OpenScene(scenePath);
-                        scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGuid);
+                        scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
                     }
 
                     var info = new SceneBakingInfo()

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter.Utilities
 {
-    internal sealed class RestoreActiveSelectionPostprocessor : AssetPostprocessSystem
+    internal sealed class RestoreActiveSelectionPostprocessor : IAssetPostprocessSystem
     {
         private const string SELECTED_OBJECT_PATH_KEY = "LAST_SELECTED_OBJECT_PATH";
 
@@ -16,7 +16,7 @@ namespace Scellecs.Morpeh.EntityConverter.Utilities
             Selection.selectionChanged += TrackSelection;
         }
 
-        public override void Execute(OnAssetPostprocessContext context)
+        public void Execute(OnAssetPostprocessContext context)
         {
             if (context.DidDomainReload)
             {

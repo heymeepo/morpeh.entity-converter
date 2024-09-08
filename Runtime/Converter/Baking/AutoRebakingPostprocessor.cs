@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal sealed class AutoRebakingPostprocessor : AssetPostprocessSystem
+    internal sealed class AutoRebakingPostprocessor : IAssetPostprocessSystem
     {
         private readonly AuthoringBakingService bakingService;
 
@@ -10,7 +10,7 @@ namespace Scellecs.Morpeh.EntityConverter
             this.bakingService = bakingService;
         }
 
-        public override void Execute(OnAssetPostprocessContext context)
+        public void Execute(OnAssetPostprocessContext context)
         {
             //if (context.DidDomainReload)
             //{

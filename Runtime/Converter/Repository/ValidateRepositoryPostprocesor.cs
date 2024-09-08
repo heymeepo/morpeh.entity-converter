@@ -3,13 +3,13 @@ using UnityEditor;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal sealed class ValidateRepositoryPostprocesor : AssetPostprocessSystem
+    internal sealed class ValidateRepositoryPostprocesor : IAssetPostprocessSystem
     {
         private readonly EntityConverterRepository repository;
 
         public ValidateRepositoryPostprocesor(EntityConverterRepository repository) => this.repository = repository;
 
-        public override void Execute(OnAssetPostprocessContext context)
+        public void Execute(OnAssetPostprocessContext context)
         {
             if (IsRepositoryIntializeCalledFirstTimeThisSession() == false)
             {

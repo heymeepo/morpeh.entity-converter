@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal enum AuthoringType
+    public enum AuthoringType
     { 
         None = 0,
         Scene = 1,

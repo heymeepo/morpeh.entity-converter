@@ -21,11 +21,6 @@ namespace Scellecs.Morpeh.EntityConverter
             bakingService = new AuthoringBakingService(repository, bakingProcessor);
             serviceProvider = EntityConverterServiceProvider.CreateInstance(repository, bakingService);
 
-            CreatePostprocessor();
-        }
-
-        private void CreatePostprocessor()
-        {
             var postprocessors = new List<AssetPostprocessSystem>()
             {
                 new ValidateRepositoryPostprocesor(repository),
@@ -33,7 +28,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 new RestoreActiveSelectionPostprocessor()
             };
 
-            assetPostprocessor = new EntityConverterAssetPostprocessor(postprocessors);
+            assetPostprocessor = EntityConverterAssetPostprocessor.CreateInstance(postprocessors);
         }
     }
 }

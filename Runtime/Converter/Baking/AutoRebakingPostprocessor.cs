@@ -1,7 +1,4 @@
 ﻿#if UNITY_EDITOR
-using UnityEditor;
-using UnityEngine;
-
 namespace Scellecs.Morpeh.EntityConverter
 {
     internal sealed class AutoRebakingPostprocessor : AssetPostprocessSystem
@@ -17,7 +14,7 @@ namespace Scellecs.Morpeh.EntityConverter
         {
             //if (context.DidDomainReload)
             //{
-            //    bakingService.BakeGlobal();
+            //    bakingService.ForceGlobalBake();
             //    return;
             //}
 

@@ -10,12 +10,10 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private EntityConverterServiceProvider() { }
 
-        public static EntityConverterServiceProvider CreateInstance(
-            IReadOnlyEntityConverterRepository repository,
-            AuthoringBakingService entityBaker)
+        public static EntityConverterServiceProvider CreateInstance(IReadOnlyEntityConverterRepository repository, AuthoringBakingService entityBaker)
         {
             Instance ??= new EntityConverterServiceProvider()
-            { 
+            {
                 Repository = repository,
                 EntityBakingService = entityBaker
             };

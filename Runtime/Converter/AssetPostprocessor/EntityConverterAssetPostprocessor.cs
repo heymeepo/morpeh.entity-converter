@@ -10,10 +10,16 @@ namespace Scellecs.Morpeh.EntityConverter
         private static EntityConverterAssetPostprocessor instance;
         private List<AssetPostprocessSystem> postprocessors = new List<AssetPostprocessSystem>();
 
-        public EntityConverterAssetPostprocessor(List<AssetPostprocessSystem> postprocessors)
-        { 
-            this.postprocessors = postprocessors;
-            instance = this;
+        private EntityConverterAssetPostprocessor() { }
+
+        public static EntityConverterAssetPostprocessor CreateInstance(List<AssetPostprocessSystem> postprocessors)
+        {
+            instance ??= new EntityConverterAssetPostprocessor()
+            {
+                postprocessors = postprocessors
+            };
+
+            return instance;
         }
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
@@ -24,7 +30,7 @@ namespace Scellecs.Morpeh.EntityConverter
             }
 
             var importedAuthorings = new List<ImportedAuthoringData>();
-            
+
             foreach (var assetPath in importedAssets)
             {
                 var asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(assetPath);
@@ -69,7 +75,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 importedAuthorings,
                 didDomainReload);
 
-            foreach (var postrpocessor in instance.postprocessors) 
+            foreach (var postrpocessor in instance.postprocessors)
             {
                 postrpocessor.Execute(context);
             }

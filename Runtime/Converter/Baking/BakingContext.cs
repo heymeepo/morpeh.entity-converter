@@ -5,7 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    public struct BakingContext
+    public ref struct BakingContext
     {
         private List<SetComponentData> components;
         private BakingLookup lookup;

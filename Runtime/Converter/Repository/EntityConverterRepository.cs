@@ -3,7 +3,6 @@ using Scellecs.Morpeh.EntityConverter.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
@@ -66,159 +65,152 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public bool TryGetSceneBakedDataAsset(string sceneGuid, out SceneBakedDataAsset sceneBakedData)
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
+                return data.SceneBakedDataAssets.TryGetValue(sceneGuid, out sceneBakedData);
             }
 
-            return data.SceneBakedDataAssets.TryGetValue(sceneGuid, out sceneBakedData);
+            sceneBakedData = default;
+            return false;
         }
 
         public bool IsSceneGuidExists(string sceneGuid)
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
+                return data.SceneGUIDs.Contains(sceneGuid);
             }
 
-            return data.SceneGUIDs.Contains(sceneGuid);
+            return false;
         }
 
         public bool IsPrefabGuidExists(string prefabGuid)
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
+                return data.AuthoringPrefabGUIDs.Contains(prefabGuid);
             }
 
-            return data.AuthoringPrefabGUIDs.Contains(prefabGuid);
+            return false;
         }
 
         public IEnumerable<string> GetSceneGuids()
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
+                return data.SceneGUIDs;
             }
 
-            return data.SceneGUIDs;
+            return Array.Empty<string>();
         }
 
         public IEnumerable<string> GetPrefabGuids()
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
+                return data.AuthoringPrefabGUIDs;
             }
 
-            return data.AuthoringPrefabGUIDs;
+            return Array.Empty<string>();
         }
 
         public void AddScene(string sceneGUID)
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
-            }
-
-            if (data.AssetGUIDInfos.ContainsKey(sceneGUID) == false)
-            {
-                data.SceneGUIDs.Add(sceneGUID);
-                data.AssetGUIDInfos.Add(sceneGUID, new AssetGUIDInfo()
+                if (data.AssetGUIDInfos.ContainsKey(sceneGUID) == false)
                 {
-                    type = AuthoringType.Scene,
-                    assetGUID = sceneGUID,
-                    registrationGUID = sceneGUID
-                });
+                    data.SceneGUIDs.Add(sceneGUID);
+                    data.AssetGUIDInfos.Add(sceneGUID, new AssetGUIDInfo()
+                    {
+                        type = AuthoringType.Scene,
+                        assetGUID = sceneGUID,
+                        registrationGUID = sceneGUID
+                    });
 
-                IsDirty = true;
+                    IsDirty = true;
+                }
             }
         }
 
         public void AddPrefab(string prefabGUID)
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
-            }
-
-            if (data.AssetGUIDInfos.ContainsKey(prefabGUID) == false)
-            {
-                data.AuthoringPrefabGUIDs.Add(prefabGUID);
-                data.AssetGUIDInfos.Add(prefabGUID, new AssetGUIDInfo()
+                if (data.AssetGUIDInfos.ContainsKey(prefabGUID) == false)
                 {
-                    type = AuthoringType.Prefab,
-                    assetGUID = prefabGUID,
-                    registrationGUID = prefabGUID
-                });
+                    data.AuthoringPrefabGUIDs.Add(prefabGUID);
+                    data.AssetGUIDInfos.Add(prefabGUID, new AssetGUIDInfo()
+                    {
+                        type = AuthoringType.Prefab,
+                        assetGUID = prefabGUID,
+                        registrationGUID = prefabGUID
+                    });
 
-                IsDirty = true;
+                    IsDirty = true;
+                }
             }
         }
 
         public void AddSceneBakedData(string assetGUID, SceneBakedDataAsset sceneAsset)
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
-            }
-
-            if (data.AssetGUIDInfos.ContainsKey(assetGUID) == false)
-            {
-                var sceneGUID = sceneAsset.SceneGuid;
-                data.SceneBakedDataAssets.Add(sceneGUID, sceneAsset);
-                data.AssetGUIDInfos.Add(assetGUID, new AssetGUIDInfo()
+                if (data.AssetGUIDInfos.ContainsKey(assetGUID) == false)
                 {
-                    type = AuthoringType.SceneBakedData,
-                    assetGUID = assetGUID,
-                    registrationGUID = sceneGUID
-                });
+                    var sceneGUID = sceneAsset.SceneGuid;
+                    data.SceneBakedDataAssets.Add(sceneGUID, sceneAsset);
+                    data.AssetGUIDInfos.Add(assetGUID, new AssetGUIDInfo()
+                    {
+                        type = AuthoringType.SceneBakedData,
+                        assetGUID = assetGUID,
+                        registrationGUID = sceneGUID
+                    });
 
-                IsDirty = true;
+                    IsDirty = true;
+                }
             }
         }
 
         public void RemoveAsset(string GUID)
         {
-            if (IsValid == false)
+            if (ValidCheck())
             {
-                //exception
-            }
-
-            if (data.AssetGUIDInfos.TryGetValue(GUID, out var assetInfo))
-            {
-                var type = assetInfo.type;
-
-                if (type == AuthoringType.Scene)
+                if (data.AssetGUIDInfos.TryGetValue(GUID, out var assetInfo))
                 {
-                    data.SceneGUIDs.Remove(assetInfo.registrationGUID);
-                    data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
+                    var type = assetInfo.type;
 
-                    if (data.SceneBakedDataAssets.TryGetValue(assetInfo.assetGUID, out var sceneBakedData))
+                    if (type == AuthoringType.Scene)
                     {
-                        var assetPath = AssetDatabase.GetAssetPath(sceneBakedData);
-                        var assetGUID = AssetDatabase.AssetPathToGUID(assetPath);
-                        data.SceneBakedDataAssets.Remove(assetInfo.assetGUID);
-                        data.AssetGUIDInfos.Remove(assetGUID);
-                        AssetDatabase.DeleteAsset(assetPath);
+                        data.SceneGUIDs.Remove(assetInfo.registrationGUID);
+                        data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
+
+                        if (data.SceneBakedDataAssets.TryGetValue(assetInfo.assetGUID, out var sceneBakedData))
+                        {
+                            var assetPath = AssetDatabase.GetAssetPath(sceneBakedData);
+                            var assetGUID = AssetDatabase.AssetPathToGUID(assetPath);
+                            data.SceneBakedDataAssets.Remove(assetInfo.assetGUID);
+                            data.AssetGUIDInfos.Remove(assetGUID);
+                            AssetDatabase.DeleteAsset(assetPath);
+                        }
                     }
-                }
-                else if (type == AuthoringType.Prefab)
-                {
-                    data.AuthoringPrefabGUIDs.Remove(assetInfo.registrationGUID);
-                    data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
-                }
-                else if (type == AuthoringType.SceneBakedData)
-                {
-                    data.SceneBakedDataAssets.Remove(assetInfo.registrationGUID);
-                    data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
-                }
-                else if (type == AuthoringType.PrefabBakedData)
-                {
+                    else if (type == AuthoringType.Prefab)
+                    {
+                        data.AuthoringPrefabGUIDs.Remove(assetInfo.registrationGUID);
+                        data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
+                    }
+                    else if (type == AuthoringType.SceneBakedData)
+                    {
+                        data.SceneBakedDataAssets.Remove(assetInfo.registrationGUID);
+                        data.AssetGUIDInfos.Remove(assetInfo.assetGUID);
+                    }
+                    else if (type == AuthoringType.PrefabBakedData)
+                    {
 
-                }
+                    }
 
-                IsDirty = true;
+                    IsDirty = true;
+                }
             }
         }
 
@@ -233,6 +225,16 @@ namespace Scellecs.Morpeh.EntityConverter
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             RepositoryDataChanged?.Invoke();
+        }
+
+        private bool ValidCheck()
+        {
+            if (IsValid == false)
+            {
+                //warning
+            }
+
+            return IsValid;
         }
     }
 }

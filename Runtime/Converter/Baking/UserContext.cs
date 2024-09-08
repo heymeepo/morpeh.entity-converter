@@ -21,14 +21,16 @@ namespace Scellecs.Morpeh.EntityConverter
             return new UserContext() { userData = userData };
         }
 
-        public T Get<T>() where T : ScriptableObject
+        public bool TryGet<T>(out T value) where T : ScriptableObject
         {
             if (userData.TryGetValue(typeof(T), out var data))
             {
-                return data as T;
+                value = data as T;
+                return true;
             }
 
-            return default;
+            value = default;
+            return false;
         }
     }
 }

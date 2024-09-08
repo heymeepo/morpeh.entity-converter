@@ -15,7 +15,7 @@ namespace Scellecs.Morpeh.EntityConverter
             this.bakingProcessor = bakingProcessor;
         }
 
-        public void BakeGlobal()
+        public void ForceGlobalBake()
         {
             if (repository.IsValid)
             {
@@ -42,9 +42,8 @@ namespace Scellecs.Morpeh.EntityConverter
                 {
                     var path = AssetDatabase.GUIDToAssetPath(prefabGuid);
                     var prefab = PrefabUtility.LoadPrefabContents(path);
-                    var convertToEntity = prefab.GetComponent<ConvertToEntity>();
 
-                    if (convertToEntity != null) 
+                    if (prefab.TryGetComponent(out ConvertToEntity convertToEntity)) 
                     {
                         var bakedData = convertToEntity.bakedDataAsset;
 
@@ -58,7 +57,6 @@ namespace Scellecs.Morpeh.EntityConverter
 
                             bakingProcessor.ExecutePrefabBake(info);
                             AssetDatabase.SaveAssets();
-                            return;
                         }
                     }
 

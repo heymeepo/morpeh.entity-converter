@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 namespace Scellecs.Morpeh.EntityConverter
 {
-    public struct ImportedAuthoringData
+    internal struct ImportedAuthoringData
     {
         public string GUID;
         public string path;

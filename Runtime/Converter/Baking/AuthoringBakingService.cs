@@ -17,6 +17,8 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void ForceGlobalBake()
         {
+            SaveDirtyBeforeBaking();
+
             if (repository.IsValid)
             {
                 var prefabGuids = repository.GetPrefabGuids();
@@ -24,90 +26,116 @@ namespace Scellecs.Morpeh.EntityConverter
 
                 foreach (var guid in prefabGuids)
                 {
-                    BakePrefab(guid);
+                    BakePrefabInternal(guid);
                 }
 
                 foreach (var guid in sceneGuids)
                 {
-                    BakeScene(guid);
+                    BakeSceneInternal(guid);
                 }
+
+                SaveAssets();
             }
         }
 
         public void BakePrefab(string prefabGUID)
         {
+            SaveDirtyBeforeBaking();
+
             if (repository.IsValid)
             {
-                if (repository.IsPrefabGuidExists(prefabGUID))
-                {
-                    var path = AssetDatabase.GUIDToAssetPath(prefabGUID);
-                    var prefab = PrefabUtility.LoadPrefabContents(path);
-
-                    if (prefab.TryGetComponent(out ConvertToEntity convertToEntity)) 
-                    {
-                        var bakedData = convertToEntity.bakedDataAsset;
-
-                        if (bakedData != null) 
-                        {
-                            var info = new PrefabBakingInfo()
-                            {
-                                root = convertToEntity,
-                                bakedData = bakedData
-                            };
-
-                            bakingProcessor.ExecutePrefabBake(info);
-                            AssetDatabase.SaveAssets();
-                        }
-                    }
-
-                    PrefabUtility.UnloadPrefabContents(prefab);
-                }
+                BakePrefabInternal(prefabGUID);
+                SaveAssets();
             }
         }
 
         public void BakeScene(string sceneGUID)
         {
+            SaveDirtyBeforeBaking();
+
             if (repository.IsValid)
             {
-                if (repository.TryGetSceneBakedDataAsset(sceneGUID, out var bakedDataAsset))
+                BakeSceneInternal(sceneGUID);
+                SaveAssets();
+            }
+        }
+
+        internal void BakePrefabInternal(string prefabGUID)
+        {
+            if (repository.IsPrefabGuidExists(prefabGUID))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(prefabGUID);
+                var prefab = PrefabUtility.LoadPrefabContents(path);
+
+                if (prefab.TryGetComponent(out ConvertToEntity convertToEntity))
                 {
-                    var prevScene = EditorSceneManager.GetActiveScene();
-                    var prevScenePath = prevScene.path;
-                    var scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
+                    var bakedData = convertToEntity.bakedDataAsset;
 
-                    if (scene.IsValid() == false)
+                    if (bakedData != null)
                     {
-                        if (prevScene.isDirty)
+                        var info = new PrefabBakingInfo()
                         {
-                            EditorSceneManager.SaveScene(prevScene);
-                        }
+                            root = convertToEntity,
+                            bakedData = bakedData
+                        };
 
-                        var scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
-                        EditorSceneManager.OpenScene(scenePath);
-                        scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
-                    }
-
-                    var info = new SceneBakingInfo()
-                    {
-                        scene = scene,
-                        bakedData = bakedDataAsset
-                    };
-
-                    bakingProcessor.ExecuteSceneBake(info);
-
-                    if (scene.isDirty)
-                    {
-                        EditorSceneManager.SaveScene(scene);
-                    }
-
-                    AssetDatabase.SaveAssets();
-
-                    if (string.IsNullOrEmpty(prevScenePath) == false && prevScenePath != "Null")
-                    {
-                        EditorSceneManager.OpenScene(prevScenePath);
+                        bakingProcessor.ExecutePrefabBake(info);
                     }
                 }
+
+                PrefabUtility.UnloadPrefabContents(prefab);
             }
+        }
+
+        internal void BakeSceneInternal(string sceneGUID)
+        {
+            if (repository.TryGetSceneBakedDataAsset(sceneGUID, out var bakedDataAsset))
+            {
+                var scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
+                var openScene = scene.IsValid() == false;
+
+                if (openScene)
+                {
+                    var scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
+                    EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+                    scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
+                }
+
+                var info = new SceneBakingInfo()
+                {
+                    scene = scene,
+                    bakedData = bakedDataAsset
+                };
+
+                bakingProcessor.ExecuteSceneBake(info);
+
+                if (openScene)
+                {
+                    EditorSceneManager.CloseScene(scene, true);
+                }
+            }
+        }
+
+        private void SaveDirtyBeforeBaking()
+        {
+            var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+
+            if (prefabStage != null)
+            {
+                PrefabUtility.SaveAsPrefabAsset(prefabStage.prefabContentsRoot, prefabStage.assetPath);
+                prefabStage.ClearDirtiness();
+            }
+
+            EditorSceneManager.MarkAllScenesDirty();
+            EditorSceneManager.SaveOpenScenes();
+
+            SaveAssets();
+        }
+
+        private void SaveAssets()
+        { 
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
     }
 }

@@ -6,11 +6,11 @@ namespace Scellecs.Morpeh.EntityConverter
         public static EntityConverterServiceProvider Instance { get; private set; }
 
         public IReadOnlyEntityConverterRepository Repository { get; private set; }
-        public AuthoringBakingService EntityBakingService { get; private set; }
+        public IAuthoringBakingService EntityBakingService { get; private set; }
 
         private EntityConverterServiceProvider() { }
 
-        public static EntityConverterServiceProvider CreateInstance(IReadOnlyEntityConverterRepository repository, AuthoringBakingService entityBaker)
+        public static EntityConverterServiceProvider CreateInstance(IReadOnlyEntityConverterRepository repository, IAuthoringBakingService entityBaker)
         {
             Instance ??= new EntityConverterServiceProvider()
             {

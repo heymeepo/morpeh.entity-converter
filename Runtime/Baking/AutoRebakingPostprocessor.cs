@@ -11,7 +11,7 @@ namespace Scellecs.Morpeh.EntityConverter
         public AutoRebakingPostprocessor(AuthoringBakingService bakingService)
         {
             this.bakingService = bakingService;
-            ObjectChangeEvents.changesPublished += ChangesPublished;
+            //ObjectChangeEvents.changesPublished += ChangesPublished;
         }
 
         public void Execute(OnAssetPostprocessContext context)

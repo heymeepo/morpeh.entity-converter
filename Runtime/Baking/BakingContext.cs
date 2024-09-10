@@ -20,7 +20,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void SetComponent<T>(T component) where T : struct, IComponent => components.Add(new SetComponentData<T>() { data = component });
 
-        public unsafe void SetComponentUnsafe<T>(Type componentType, T data) where T : struct
+        public unsafe void SetComponentReinterpret<T>(Type componentType, T data) where T : struct
         {
             var type = typeof(SetComponentData<>).MakeGenericType(componentType);
             var instance = (SetComponentData)Activator.CreateInstance(type);

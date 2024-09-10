@@ -192,7 +192,7 @@ public struct VehicleComponent : IComponent
 ```csharp
 public struct AwesomeComponent : IComponent
 {
-    public FixedList128<Entity>                 //Temporary not allowed
+    public FixedList128<Entity>;                //Temporary not allowed
     public Entity[] entities;                   //Not allowed
     public SomeManagedType managedType;         //Not allowed
     public SomeUnmanagedType unmanagedType;     //Allowed

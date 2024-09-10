@@ -127,7 +127,7 @@ public sealed class AwesomeAuthoring : EcsAuthoring
 
     public override void OnBake(BakingContext bakingContext, UserContext userContext)
     {        
-        bakingContext.SetComponentUnsafe<float4>(typeof(AwesomeFloat4Component), someValue);
+        bakingContext.SetComponentReinterpret<float4>(typeof(AwesomeFloat4Component), someValue);
     }
 }
 

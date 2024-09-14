@@ -5,6 +5,11 @@ Tools for serializing and converting gameobjects into entities for [Morpeh ECS](
 > [!WARNING]
 > This package is in the early stage of development for the Morpeh-2024, which has not yet been released. There will likely be many significant changes.
 
+>It is not an alternative to Morpeh providers but is intended for complete decoupling from gameobjects at runtime and primarily exists for use with packages such as
+- [morpeh.transforms](https://github.com/heymeepo/morpeh.transforms/tree/stage-2024)
+- [morpeh.physics](https://github.com/heymeepo/morpeh.physics/tree/stage-2024)
+- [morpeh.graphics](https://github.com/heymeepo/morpeh.graphics)
+
 ## Installation
 
 Requirements:
@@ -40,7 +45,7 @@ GameObjects are used as configurations for future entities. They are only needed
 > Any **```: EcsAuthoring```** must be wrapped in the ```#if UNITY_EDITOR``` directive.
 
 ### Getting started
-First, you need to create a global entity converter asset.
+First, you need to create an global entity converter asset.
 
 To do this, go to **Tools -> Morpeh -> Entity Converter**, and click the ``Create Entity Converter Asset`` button. This will create a main asset in the Plugins folder to store all data and settings for the converter. In this window, you can create assets for baking scenes, adjust settings, and manually manage the baking process.
 
@@ -127,7 +132,7 @@ public sealed class AwesomeAuthoring : EcsAuthoring
 
     public override void OnBake(BakingContext bakingContext, UserContext userContext)
     {        
-        bakingContext.SetComponentReinterpret<float4>(typeof(AwesomeFloat4Component), someValue);
+        bakingContext.SetComponentUnsafe<float4>(typeof(AwesomeFloat4Component), someValue);
     }
 }
 
@@ -187,12 +192,12 @@ public struct VehicleComponent : IComponent
 > GameObjects that you assign to ``EntityLink`` through the editor must be part of the same hierarchy where you are assigning them. The GameObject must either be part of the same prefab or, in the case of baking scenes, be located in the same scene.
 
 > [!WARNING]
-> There is one important limitation. Еntities in your components, you want to assign from editor, cannot be placed inside managed types or arrays. This means you can have such constructions in your components, but you cannot pass entities into them using ``BakingContext.GetEntityFromLink()``. In the future, there will be an option to pass them into fixed-size arrays.
+> There is one important limitation. Еntities in your components, you want to assign from editor, cannot be placed inside managed types or arrays. This means you can have such structures in your components, but you cannot pass entities into them using ``BakingContext.GetEntityFromLink()``. In the future, there will be an option to pass them into fixed-size arrays.
 
 ```csharp
 public struct AwesomeComponent : IComponent
 {
-    public FixedList128<Entity>;                //Temporary not allowed
+    public FixedList128<Entity>                 //Temporary not allowed
     public Entity[] entities;                   //Not allowed
     public SomeManagedType managedType;         //Not allowed
     public SomeUnmanagedType unmanagedType;     //Allowed

@@ -2,7 +2,7 @@
 
 Tools for serializing and converting gameobjects into entities for [Morpeh ECS](https://github.com/scellecs/morpeh).
 
-It is not an alternative to Morpeh providers but is intended for complete decoupling from gameobjects at runtime and primarily exists for use with packages such as
+It is not an alternative to Morpeh providers but is intended for complete decoupling from gameobjects at runtime and primarily exists for use with packages:
 - [morpeh.transforms](https://github.com/heymeepo/morpeh.transforms/tree/stage-2024)
 - [morpeh.physics](https://github.com/heymeepo/morpeh.physics/tree/stage-2024)
 - [morpeh.graphics](https://github.com/heymeepo/morpeh.graphics)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    internal class OnAssetPostprocessContext
+    internal struct OnAssetPostprocessContext
     {
         public IEnumerable<string> AllImportedAssetsPaths { get; private set; }
         public IEnumerable<string> AllDeletedAssetsPaths { get; private set; }

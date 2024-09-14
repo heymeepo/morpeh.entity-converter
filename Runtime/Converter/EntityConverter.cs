@@ -1,9 +1,6 @@
 ﻿#if UNITY_EDITOR
 using Scellecs.Morpeh.EntityConverter.Utilities;
-using Scellecs.Morpeh.Workaround.Utility;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -15,6 +12,7 @@ namespace Scellecs.Morpeh.EntityConverter
         private EntityConverterRepository repository;
         private AuthoringBakingService bakingService;
         private BakingProcessor bakingProcessor;
+        private SceneDependencyTracker sceneTracker;
 
         public void Initialize()
         {
@@ -23,6 +21,7 @@ namespace Scellecs.Morpeh.EntityConverter
             bakingProcessor = new BakingProcessor();
             bakingService = new AuthoringBakingService(repository, bakingProcessor);
             serviceProvider = EntityConverterServiceProvider.CreateInstance(repository, bakingService);
+            sceneTracker = new SceneDependencyTracker(repository);
 
             var postprocessors = new List<IAssetPostprocessSystem>
             {
@@ -32,6 +31,8 @@ namespace Scellecs.Morpeh.EntityConverter
             };
 
             assetPostprocessor = EntityConverterAssetPostprocessor.CreateInstance(postprocessors);
+
+            sceneTracker.Initialize();
         }
     }
 }

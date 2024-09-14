@@ -13,18 +13,17 @@ namespace Scellecs.Morpeh.EntityConverter
         {
             if (link.convertToEntity == null)
             {
-                //warning
                 return default;
             }
 
             var instanceId = link.convertToEntity.gameObject.GetInstanceID();
             var index = instanceIdToIndex[instanceId];
-
             var value = ((long)(index & 0xFFFFFFFF) << 32) | ((long)(1 & 0xFFFF) << 16);
-            var entity = new Entity();
-            var entPtr = (long*)&entity;
+            var ent = default(Entity);
+            var entPtr = (long*)&ent;
             *entPtr = value;
-            return entity;
+
+            return ent;
         }
     }
 }

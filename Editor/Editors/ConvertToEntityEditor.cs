@@ -1,67 +1,51 @@
 ﻿using UnityEditor;
+using UnityEditor.UIElements;
+using UnityEngine.UIElements;
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
 {
     [CustomEditor(typeof(ConvertToEntity))]
     public sealed class ConvertToEntityEditor : UnityEditor.Editor
     {
-        //private ObjectField bakedDataAssetField;
-        //private Toggle excludeSceneCheckbox;
+        public override VisualElement CreateInspectorGUI()
+        {
+            var inspector = new VisualElement();
+            var targetGO = (target as ConvertToEntity).gameObject;
+            targetGO.tag = "EditorOnly";
 
-        //public override VisualElement CreateInspectorGUI()
-        //{
-        //    var inspector = new VisualElement();
-        //    var targetGO = (target as ConvertToEntity).gameObject;
-        //    targetGO.tag = "EditorOnly";
+            var isSceneMode = Utilities.PrefabUtility.IsSceneObject(targetGO);
+            var bakedDataAssetField = CreateBakedDataAssetField();
+            var excludeSceneCheckbox = CreateExcludeSceneCheckbox();
+            bakedDataAssetField.SetEnabled(isSceneMode == false);
 
-        //    var sceneMode = Utilities.PrefabUtility.IsSceneObject(targetGO);
+            inspector.Add(bakedDataAssetField);
+            
+            if (isSceneMode) 
+            {
+                inspector.Add(excludeSceneCheckbox);
+            }
 
-        //    if (sceneMode)
-        //    {
-        //        CreateSceneBakedDataAssetField();
-        //        CreateExcludeSceneCheckbox();
-        //    }
-        //    else
-        //    {
-        //        CreateBakedDataAssetField();
-        //    }
+            return inspector;
+        }
 
-        //    inspector.Add(bakedDataAssetField);
+        private VisualElement CreateBakedDataAssetField()
+        {
+            var bakedDataProperty = serializedObject.FindProperty(nameof(ConvertToEntity.bakedDataAsset));
+            var bakedDataAssetField = new ObjectField("Baked Data");
+            bakedDataAssetField.objectType = typeof(PrefabBakedDataAsset);
+            bakedDataAssetField.SetEnabled(true);
+            bakedDataAssetField.BindProperty(bakedDataProperty);
 
-        //    if (sceneMode)
-        //    {
-        //        inspector.Add(excludeSceneCheckbox);
-        //    }
+            return bakedDataAssetField;
+        }
 
-        //    return inspector;
-        //}
+        private VisualElement CreateExcludeSceneCheckbox()
+        {
+            var excludeSceneProperty = serializedObject.FindProperty(nameof(ConvertToEntity.excludeFromScene));
+            var excludeSceneCheckbox = new Toggle("Exclude From Scene");
+            excludeSceneCheckbox.BindProperty(excludeSceneProperty);
 
-        //private void CreateBakedDataAssetField()
-        //{
-        //    var bakedDataProperty = serializedObject.FindProperty(nameof(ConvertToEntity.bakedDataAsset));
-
-        //    bakedDataAssetField = new ObjectField("Baked Data");
-        //    bakedDataAssetField.objectType = typeof(PrefabBakedDataAsset);
-        //    bakedDataAssetField.SetEnabled(true);
-        //    bakedDataAssetField.BindProperty(bakedDataProperty);
-        //}
-
-        //private void CreateSceneBakedDataAssetField()
-        //{
-        //    var bakedDataProperty = serializedObject.FindProperty(nameof(ConvertToEntity.bakedDataSceneAsset));
-
-        //    bakedDataAssetField = new ObjectField("Baked Data");
-        //    bakedDataAssetField.objectType = typeof(PrefabBakedDataAsset);
-        //    bakedDataAssetField.SetEnabled(false);
-        //    bakedDataAssetField.BindProperty(bakedDataProperty);
-        //}
-
-        //private void CreateExcludeSceneCheckbox()
-        //{
-        //    var excludeSceneProperty = serializedObject.FindProperty(nameof(ConvertToEntity.excludeFromScene));
-
-        //    excludeSceneCheckbox = new Toggle("Exclude From Scene");
-        //    excludeSceneCheckbox.BindProperty(excludeSceneProperty);
-        //}
+            return excludeSceneCheckbox;
+        }
     }
 }

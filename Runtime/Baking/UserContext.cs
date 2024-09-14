@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    public struct UserContext
+    public ref struct UserContext
     {
         private Dictionary<Type, ScriptableObject> userData;
 

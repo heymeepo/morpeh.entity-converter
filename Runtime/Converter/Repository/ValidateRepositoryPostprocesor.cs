@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -7,7 +8,10 @@ namespace Scellecs.Morpeh.EntityConverter
     {
         private readonly EntityConverterRepository repository;
 
-        public ValidateRepositoryPostprocesor(EntityConverterRepository repository) => this.repository = repository;
+        public ValidateRepositoryPostprocesor(EntityConverterRepository repository)
+        {
+            this.repository = repository;
+        }
 
         public void Execute(OnAssetPostprocessContext context)
         {

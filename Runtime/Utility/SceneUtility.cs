@@ -35,8 +35,10 @@ namespace Scellecs.Morpeh.EntityConverter.Utilities
         public static string GetActiveSceneGUID()
         {
             var scene = EditorSceneManager.GetActiveScene();
-            return AssetDatabase.GUIDFromAssetPath(scene.path).ToString();
+            return GetSceneGUID(scene);
         }
+
+        public static string GetSceneGUID(Scene scene) => AssetDatabase.GUIDFromAssetPath(scene.path).ToString();
     }
 }
 #endif

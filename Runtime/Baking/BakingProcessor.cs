@@ -21,7 +21,7 @@ namespace Scellecs.Morpeh.EntityConverter
             };
 
             int currentIndex = 0;
-            TraverseHierarchy(prefabBakingInfo.root, ref lookup, ref currentIndex, -1);
+            TraverseHierarchy(prefabBakingInfo.root, ref lookup, ref currentIndex, -1, true);
             ProcessBake(lookup, prefabBakingInfo.bakedData);
         }
 
@@ -34,12 +34,12 @@ namespace Scellecs.Morpeh.EntityConverter
                 instances = new List<ConvertToEntity>()
             };
 
-            var roots = GetAllSceneRoots(sceneBakingInfo.scene);
+            var roots = GetAllTopmostConvertersInScene(sceneBakingInfo.scene);
             int currentIndex = 0;
 
             foreach (var root in roots)
             {
-                TraverseHierarchy(root, ref lookup, ref currentIndex, -1);
+                TraverseHierarchy(root, ref lookup, ref currentIndex, -1, false);
             }
 
             ProcessBake(lookup, sceneBakingInfo.bakedData);
@@ -100,6 +100,7 @@ namespace Scellecs.Morpeh.EntityConverter
             bakedDataAsset.serializedData = Serialization.SerializationUtility.SerializeBakedData(bakedData);
             bakedDataAsset.metadata = new BakedMetadata()
             {
+                entitiesCount = bakedData.Count,
                 componentsCount = componentsCount,
                 parentChildPairsCount = parentChildPairsCount
             };
@@ -107,7 +108,7 @@ namespace Scellecs.Morpeh.EntityConverter
             EditorUtility.SetDirty(bakedDataAsset);
         }
 
-        private static void TraverseHierarchy(ConvertToEntity current, ref BakingLookup lookup, ref int currentIndex, int parentIndex)
+        private static void TraverseHierarchy(ConvertToEntity current, ref BakingLookup lookup, ref int currentIndex, int parentIndex, bool isPrefab)
         {
             var instanceId = current.gameObject.GetInstanceID();
 
@@ -122,16 +123,59 @@ namespace Scellecs.Morpeh.EntityConverter
             {
                 var childComponent = child.GetComponent<ConvertToEntity>();
 
-                if (childComponent != null && childComponent.excludeFromScene == false)
+                if (childComponent != null)
                 {
-                    TraverseHierarchy(childComponent, ref lookup, ref currentIndex, currentInstanceIndex);
+                    if (childComponent.excludeFromScene && isPrefab == false)
+                    {
+                        continue;
+                    }
+
+                    TraverseHierarchy(childComponent, ref lookup, ref currentIndex, currentInstanceIndex, isPrefab);
                 }
             }
         }
 
-        private static IEnumerable<ConvertToEntity> GetAllSceneRoots(Scene scene)
+        private static IEnumerable<ConvertToEntity> GetAllTopmostConvertersInScene(Scene scene)
         {
-            return scene.GetRootGameObjects().Select(x => x.GetComponent<ConvertToEntity>()).Where(c => c != null && c.excludeFromScene == false);
+            var rootObjects = scene.GetRootGameObjects();
+
+            List<ConvertToEntity> topMostEntities = new List<ConvertToEntity>();
+
+            foreach (var root in rootObjects)
+            {
+                var topEntitiesInHierarchy = GetTopmostConvertersInHierarchy(root);
+                topMostEntities.AddRange(topEntitiesInHierarchy);
+            }
+
+            return topMostEntities;
+        }
+
+        private static IEnumerable<ConvertToEntity> GetTopmostConvertersInHierarchy(GameObject root)
+        {
+            var result = new List<ConvertToEntity>();
+            TraverseHierarchy(root);
+
+            void TraverseHierarchy(GameObject currentObject)
+            {
+                var conveter = currentObject.GetComponent<ConvertToEntity>();
+
+                if (conveter != null)
+                {
+                    if (conveter.excludeFromScene == false)
+                    {
+                        result.Add(conveter);
+                    }
+                }
+                else
+                {
+                    foreach (Transform child in currentObject.transform)
+                    {
+                        TraverseHierarchy(child.gameObject);
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

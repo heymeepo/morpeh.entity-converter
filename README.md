@@ -12,13 +12,10 @@ This is not an alternative to Morpeh providers. It's a pure ECS approach where G
 
 ## Installation
 
-Requirements:
+Dependencies:
 
 - [morpeh #stage-2024.1](https://github.com/scellecs/morpeh/tree/stage-2024.1)
 - [morpeh.transforms #stage-2024](https://github.com/heymeepo/morpeh.transforms/tree/stage-2024)
-
-Dependencies:
-
 - com.unity.burst: 1.8.12
 - com.unity.collections: 2.1.4
 - com.unity.serialization: 3.1.1

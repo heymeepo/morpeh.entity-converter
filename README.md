@@ -1,8 +1,8 @@
 # Morpeh Entity Converter
 
-Tools for serializing and converting gameobjects into entities for [Morpeh ECS](https://github.com/scellecs/morpeh).
+Tools for serializing and converting GameObjects into Entities for [Morpeh ECS](https://github.com/scellecs/morpeh).
 
-It is not an alternative to Morpeh providers but is intended for complete decoupling from gameobjects at runtime and primarily exists for use with packages:
+This is not an alternative to Morpeh providers. It's a pure ECS approach where GameObjects and Monobehaviors are not used at runtime. Primarily exists to use with packages:
 - [morpeh.transforms](https://github.com/heymeepo/morpeh.transforms/tree/stage-2024)
 - [morpeh.physics](https://github.com/heymeepo/morpeh.physics/tree/stage-2024)
 - [morpeh.graphics](https://github.com/heymeepo/morpeh.graphics)
@@ -31,7 +31,7 @@ https://github.com/heymeepo/morpeh.entity-converter.git
 
 ## Usage
 
-GameObjects are used as configurations for future entities. They are only needed in the editor, so they should have the tag "EditorOnly". ```ConvertToEntity``` sets this tag by default.
+Since GameObjects are used as configurations for future entities, they are only needed in the editor, so they should be tagged as "EditorOnly".```ConvertToEntity``` sets this tag by default.
 
 **```ConvertToEntity```** is a MonoBehaviour class that you need to attach to each GameObject in the (prefab/scene object) hierarchy that you want to convert into an entity.
 
@@ -197,7 +197,7 @@ public struct VehicleComponent : IComponent
 ```csharp
 public struct AwesomeComponent : IComponent
 {
-    public FixedList128<Entity>                 //Temporary not allowed
+    public FixedList128<Entity>;                //Temporary not allowed
     public Entity[] entities;                   //Not allowed
     public SomeManagedType managedType;         //Not allowed
     public SomeUnmanagedType unmanagedType;     //Allowed
@@ -253,8 +253,8 @@ This demonstrates the simplest way to create an entity from the asset config.
 
 The factory also has several other methods for creating entities:
 - ``Create(World world, Span<Entity> roots)``
-- ``CreateAt(World world, float3 position, quaternion rotation)``
-- ``CreateAt(World world, float3 position, quaternion rotation, Span<Entity> roots)``
+- ``CreateAt(World world, float3 position, quaternion rotation, Stash<LocalTransform> transformStash)``
+- ``CreateAt(World world, float3 position, quaternion rotation, Stash<LocalTransform> transformStash, Span<Entity> roots)``
 
 ``CreateAt`` as the name suggests, allows you to create an entity hierarchy at a specific position.
 
@@ -271,12 +271,14 @@ public sealed class SpawnObstacleSystem : ISystem
 {
     private Filter filter;
     private Stash<SpawnObstacleRequest> spawnStash;
+    private Stash<LocalTransform> transformStash;
     private Stash<TeamId> teamIdStash;
 
     public override void OnAwake()
     {
         filter = World.Filter.With<SpawnObstacleRequest>().Build();
         spawnStash = World.GetStash<SpawnObstacleRequest>();
+        transformStash = World.GetStash<LocalTransform>();
         teamIdStash = World.GetStash<TeamId>();
     }
 
@@ -288,7 +290,7 @@ public sealed class SpawnObstacleSystem : ISystem
             var factory = request.config.GetFactory();
 
             Span<Entity> roots = stackalloc Entity[factory.RootEntitiesCount];
-            factory.CreateAt(World, request.position, quaternion.identity, roots);
+            factory.CreateAt(World, request.position, quaternion.identity, transformStash, roots);
 
             for(int i = 0; i < roots.Length; i++)
             {

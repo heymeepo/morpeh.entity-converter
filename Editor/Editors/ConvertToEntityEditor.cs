@@ -11,7 +11,11 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             var inspector = new VisualElement();
             var targetGO = (target as ConvertToEntity).gameObject;
-            targetGO.tag = "EditorOnly";
+
+            if (targetGO.CompareTag("EditorOnly") == false)
+            {
+                targetGO.tag = "EditorOnly";
+            }
 
             var isSceneMode = Utilities.PrefabUtility.IsSceneObject(targetGO);
             var bakedDataAssetField = CreateBakedDataAssetField();
@@ -19,8 +23,8 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             bakedDataAssetField.SetEnabled(isSceneMode == false);
 
             inspector.Add(bakedDataAssetField);
-            
-            if (isSceneMode) 
+
+            if (isSceneMode)
             {
                 inspector.Add(excludeSceneCheckbox);
             }

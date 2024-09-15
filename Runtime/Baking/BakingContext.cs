@@ -48,8 +48,7 @@ namespace Scellecs.Morpeh.EntityConverter
             }
             else
             {
-                Debug.Log("error");
-                //error
+                Debug.LogError($"The specified type {componentType} is not valid. Please ensure that the type you are trying to assign is a value type and implements IComponent interface.");
             }
         }
     }

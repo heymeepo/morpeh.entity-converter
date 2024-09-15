@@ -1,6 +1,5 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -87,6 +86,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
                 var addedComponents = new SetComponentData[components.Count];
                 components.CopyTo(addedComponents);
+
                 components.Clear();
                 bakingContext.unparent = false;
 

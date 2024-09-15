@@ -69,19 +69,23 @@ namespace Scellecs.Morpeh.EntityConverter
         public void CreateAt(World world, float3 position, quaternion rotation)
         {
             Span<Entity> roots = stackalloc Entity[RootEntitiesCount];
-            CreateAt(world, position, rotation, roots);
+            CreateAt(world, position, rotation, world.GetStash<LocalTransform>(), roots);
         }
 
-        public void CreateAt(World world, float3 position, quaternion rotation, Span<Entity> roots)
+        public void CreateAt(World world, float3 position, quaternion rotation, Stash<LocalTransform> transformStash)
+        {
+            Span<Entity> roots = stackalloc Entity[RootEntitiesCount];
+            CreateAt(world, position, rotation, transformStash, roots);
+        }
+
+        public void CreateAt(World world, float3 position, quaternion rotation, Stash<LocalTransform> transformStash, Span<Entity> roots)
         {
             Create(world, roots);
 
             for (int i = 0; i < roots.Length; i++)
             {
                 var ent = roots[i];
-#pragma warning disable 0618
-                ref var transform = ref ent.GetComponent<LocalTransform>();
-#pragma warning restore 0618
+                ref var transform = ref transformStash.Get(ent);
                 transform.position += position;
                 transform.rotation = math.mul(transform.rotation, rotation);
             }

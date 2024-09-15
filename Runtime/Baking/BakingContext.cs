@@ -10,25 +10,27 @@ namespace Scellecs.Morpeh.EntityConverter
     {
         private List<SetComponentData> components;
         private BakingLookup lookup;
+        private ConvertToEntity target;
 
         internal bool unparent;
 
-        internal BakingContext(List<SetComponentData> components, BakingLookup lookup)
+        internal BakingContext(List<SetComponentData> components, BakingLookup lookup, ConvertToEntity target)
         {
             this.components = components;
             this.lookup = lookup;
+            this.target = target;
             unparent = false;
         }
 
         public Entity GetEntityFromLink(EntityLink link)
         {
-            var ent = lookup.CreateEntityFromLink(link);
-
-            if (ent == default)
-            { 
-                //warning
+            if (target.ValidateEntityLinkCompability(link.convertToEntity) == false)
+            {
+                Debug.LogWarning($"Incompatible EntityLink found. The target authoring game object was null or violated the entity linking rules. Source: {target.name} at scene {target.gameObject.scene.name}");
+                return default;
             }
 
+            var ent = lookup.CreateEntityFromLink(link);
             return ent;
         }
 

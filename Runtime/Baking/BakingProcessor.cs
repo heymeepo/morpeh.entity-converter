@@ -48,7 +48,6 @@ namespace Scellecs.Morpeh.EntityConverter
         {
             var bakedData = new List<BakedData>();
             var components = new List<SetComponentData>();
-            var bakingContext = new BakingContext(components, lookup);
             var componentsCount = 0;
             var parentChildPairsCount = 0;
             var userContext = default(UserContext);  //UserContext.Create(this.userContext);
@@ -70,6 +69,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 var converter = lookup.instances[i];
                 var instanceId = converter.gameObject.GetInstanceID();
                 var authorings = converter.GetAuthorings();
+                var bakingContext = new BakingContext(components, lookup, converter);
 
                 for (int j = 0; j < authorings.Length; j++)
                 {

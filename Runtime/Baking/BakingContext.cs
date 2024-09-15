@@ -32,7 +32,7 @@ namespace Scellecs.Morpeh.EntityConverter
             return ent;
         }
 
-        public void UnparentEntity() => unparent = true;
+        public void UnparentThis() => unparent = true;
 
         public void SetComponent<T>(T component) where T : struct, IComponent => components.Add(new SetComponentData<T>() { data = component });
 

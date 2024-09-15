@@ -4,6 +4,7 @@ using Scellecs.Morpeh.EntityConverter.Utilities;
 using System;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter
@@ -16,6 +17,8 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private EntityConverterDataAsset data;
 
+        //TODO: Refactor this
+        //This method is called once when the editor session starts or when the data asset is created. Afterwards, only delta changes occur
         public void Initialize()
         {
             data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.DATA_ASSET_PATH);
@@ -26,16 +29,19 @@ namespace Scellecs.Morpeh.EntityConverter
                 data.SceneBakedDataAssets.Clear();
                 data.AuthoringPrefabGUIDs.Clear();
                 data.AssetGUIDInfos.Clear();
+                data.PrefabToSceneDependencies.Clear();
 
                 var sceneGUIDs = SceneUtility.FindAllProjectSceneGuids();
                 var prefabAssetsGUIDs = AssetDatabase.FindAssets("t:Prefab");
                 var sceneBakedDataAssetsGUIDs = AssetDatabase.FindAssets("t:SceneBakedDataAsset");
 
+                //Add all scene GUIDs in project
                 foreach (var guid in sceneGUIDs)
                 {
                     AddScene(guid);
                 }
 
+                //Add all authoring prefabs in project
                 foreach (string guid in prefabAssetsGUIDs)
                 {
                     var prefabPath = AssetDatabase.GUIDToAssetPath(guid);
@@ -47,6 +53,7 @@ namespace Scellecs.Morpeh.EntityConverter
                     }
                 }
 
+                //Add all scene baked datas in project
                 foreach (string guid in sceneBakedDataAssetsGUIDs)
                 {
                     var asset = AssetDatabaseUtility.LoadAssetFromGuid<SceneBakedDataAsset>(guid);
@@ -54,6 +61,55 @@ namespace Scellecs.Morpeh.EntityConverter
                     if (asset != null)
                     {
                         AddSceneBakedData(guid, asset);
+                    }
+                }
+
+                //Add all prefab (not just authoring) to scene dependencies in project
+                foreach (var guid in sceneGUIDs)
+                {
+                    var scene = Utilities.SceneUtility.GetSceneFromGUID(guid);
+                    var openScene = scene.IsValid() == false;
+
+                    if (openScene)
+                    {
+                        var scenePath = AssetDatabase.GUIDToAssetPath(guid);
+                        EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+                        scene = Utilities.SceneUtility.GetSceneFromGUID(guid);
+                    }
+
+                    var rootObjects = scene.GetRootGameObjects();
+
+                    foreach (var root in rootObjects)
+                    {
+                        var transforms = root.GetComponentsInChildren<Transform>(true);
+                        foreach (var transform in transforms)
+                        {
+                            var gameObject = transform.gameObject;
+                            if (UnityEditor.PrefabUtility.IsPartOfPrefabInstance(gameObject))
+                            {
+                                var prefabAsset = UnityEditor.PrefabUtility.GetCorrespondingObjectFromSource(gameObject);
+                                if (prefabAsset != null)
+                                {
+                                    var prefabPath = AssetDatabase.GetAssetPath(prefabAsset);
+                                    var prefabGuid = AssetDatabase.AssetPathToGUID(prefabPath);
+                                    AddPrefabToSceneDependency(prefabGuid, guid);
+                                }
+                                else
+                                {
+                                    var prefabGuid = SceneDependencyTrackerUtility.ExtractGuidFromMissingPrefabName(gameObject.name);
+
+                                    if (guid != null)
+                                    {
+                                        AddPrefabToSceneDependency(prefabGuid, guid);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (openScene)
+                    {
+                        EditorSceneManager.CloseScene(scene, true);
                     }
                 }
 
@@ -290,6 +346,11 @@ namespace Scellecs.Morpeh.EntityConverter
                         else
                         {
                             dependencyInfo.refCountPerScene.Remove(sceneGUID);
+
+                            if (dependencyInfo.refCountPerScene.Count == 0)
+                            {
+                                data.PrefabToSceneDependencies.Remove(prefabGUID);
+                            }
                         }
 
                         IsDirty = true;

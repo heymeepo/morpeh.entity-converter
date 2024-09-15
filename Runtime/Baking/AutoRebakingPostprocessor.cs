@@ -10,15 +10,15 @@ namespace Scellecs.Morpeh.EntityConverter
         private readonly AuthoringBakingService bakingService;
         private readonly IReadOnlyEntityConverterRepository repository;
 
-        public List<string> sceneGUIDsBuffer;
-        public List<string> prefabGUIDsBuffer;
+        public List<string> sceneGUIDs;
+        public List<string> prefabGUIDs;
 
         public AutoRebakingPostprocessor(AuthoringBakingService bakingService, IReadOnlyEntityConverterRepository repository)
         {
             this.bakingService = bakingService;
             this.repository = repository;
-            sceneGUIDsBuffer = new List<string>();
-            prefabGUIDsBuffer = new List<string>();
+            sceneGUIDs = new List<string>();
+            prefabGUIDs = new List<string>();
         }
 
         public void Execute(OnAssetPostprocessContext context)
@@ -34,8 +34,8 @@ namespace Scellecs.Morpeh.EntityConverter
             //    return;
             //}
 
-            sceneGUIDsBuffer.Clear();
-            prefabGUIDsBuffer.Clear();
+            sceneGUIDs.Clear();
+            prefabGUIDs.Clear();
 
             foreach (var importedAuthoringData in context.ImportedAuthorings)
             {
@@ -56,23 +56,25 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private void AddRebakePrefab(string prefabGUID)
         {
-            prefabGUIDsBuffer.Add(prefabGUID);
-            sceneGUIDsBuffer.AddRange(repository.GetSceneDependenciesForPrefab(prefabGUID));
+            prefabGUIDs.Add(prefabGUID);
+            sceneGUIDs.AddRange(repository.GetSceneDependenciesForPrefab(prefabGUID));
         }
 
         private void AddRebakeScene(string sceneGUID)
         {
-            sceneGUIDsBuffer.Add(sceneGUID);
+            sceneGUIDs.Add(sceneGUID);
         }
 
         private void ExecuteRebake()
         {
-            try
+            if (sceneGUIDs.Any() || prefabGUIDs.Any())
             {
-                bakingService.SaveDirtyBeforeBaking();
-                var sceneGUIDs = sceneGUIDsBuffer.Distinct();
+                var sceneGUIDs = this.sceneGUIDs.Distinct();
 
-                foreach (var prefabGUID in prefabGUIDsBuffer)
+                bakingService.SavePreBakingEditorState();
+                bakingService.SaveDirtyBeforeBaking();
+
+                foreach (var prefabGUID in prefabGUIDs)
                 {
                     bakingService.BakePrefabInternal(prefabGUID);
                 }
@@ -84,10 +86,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
-            }
-            catch (System.Exception ex) 
-            { 
-                UnityEngine.Debug.Log(ex.Message);
+                bakingService.RestorePreBakingEditorState();
             }
         }
     }

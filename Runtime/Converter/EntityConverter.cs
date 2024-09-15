@@ -30,7 +30,6 @@ namespace Scellecs.Morpeh.EntityConverter
                 new ValidateRepositoryPostprocesor(repository),
                 new SceneDependencyTrackerPostprocessor(sceneTracker),
                 new AutoRebakingPostprocessor(bakingService, repository),
-                new RestorePreBakingEditorStatePostprocessor()
             };
 
             EditorApplication.update += Update;

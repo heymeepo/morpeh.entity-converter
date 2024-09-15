@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-using System.Reflection;
+using Scellecs.Morpeh.EntityConverter.Utilities;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
@@ -9,15 +9,18 @@ namespace Scellecs.Morpeh.EntityConverter
     {
         private readonly IReadOnlyEntityConverterRepository repository;
         private readonly BakingProcessor bakingProcessor;
+        private readonly RestorePreBakingEditorState restorePreBakingState;
 
         public AuthoringBakingService(IReadOnlyEntityConverterRepository repository, BakingProcessor bakingProcessor)
         {
             this.repository = repository;
             this.bakingProcessor = bakingProcessor;
+            restorePreBakingState = new RestorePreBakingEditorState();
         }
 
         public void ForceGlobalBake()
         {
+            SavePreBakingEditorState();
             SaveDirtyBeforeBaking();
 
             if (repository.IsValid)
@@ -36,11 +39,13 @@ namespace Scellecs.Morpeh.EntityConverter
                 }
 
                 SaveAssets();
+                RestorePreBakingEditorState();
             }
         }
 
         public void BakePrefab(string prefabGUID)
         {
+            SavePreBakingEditorState();
             SaveDirtyBeforeBaking();
 
             if (repository.IsValid)
@@ -48,17 +53,20 @@ namespace Scellecs.Morpeh.EntityConverter
                 BakePrefabInternal(prefabGUID);
                 BakeDependentScenesForPrefab(prefabGUID);
                 SaveAssets();
+                RestorePreBakingEditorState();
             }
         }
 
         public void BakeScene(string sceneGUID)
         {
+            SavePreBakingEditorState();
             SaveDirtyBeforeBaking();
 
             if (repository.IsValid)
             {
                 BakeSceneInternal(sceneGUID);
                 SaveAssets();
+                RestorePreBakingEditorState();
             }
         }
 
@@ -69,7 +77,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 try
                 {
                     var path = AssetDatabase.GUIDToAssetPath(prefabGUID);
-                    var prefab = PrefabUtility.LoadPrefabContents(path);
+                    var prefab = UnityEditor.PrefabUtility.LoadPrefabContents(path);
 
                     if (prefab.TryGetComponent(out ConvertToEntity convertToEntity))
                     {
@@ -89,7 +97,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
                     UnityEngine.Debug.Log($"Prefab baked: {prefab.name}");
 
-                    PrefabUtility.UnloadPrefabContents(prefab);
+                    UnityEditor.PrefabUtility.UnloadPrefabContents(prefab);
                 }
                 catch (System.Exception e)
                 {
@@ -152,13 +160,17 @@ namespace Scellecs.Morpeh.EntityConverter
 
             if (prefabStage != null)
             {
-                PrefabUtility.SaveAsPrefabAsset(prefabStage.prefabContentsRoot, prefabStage.assetPath);
+                UnityEditor.PrefabUtility.SaveAsPrefabAsset(prefabStage.prefabContentsRoot, prefabStage.assetPath);
                 prefabStage.ClearDirtiness();
             }
 
-            //EditorSceneManager.SaveOpenScenes();
-            //SaveAssets();
+            EditorSceneManager.SaveOpenScenes();
+            SaveAssets();
         }
+
+        internal void SavePreBakingEditorState() => restorePreBakingState.SaveEditorState();
+
+        internal void RestorePreBakingEditorState() => restorePreBakingState.RestoreEditorState();
 
         private void SaveAssets()
         {

@@ -60,7 +60,7 @@ namespace Scellecs.Morpeh.EntityConverter
                         }
                         else
                         {
-                            var guid = ExtractGuidFromMissingPrefabName(gameObject.name);
+                            var guid = SceneDependencyTrackerUtility.ExtractGuidFromMissingPrefabName(gameObject.name);
                             var instanceId = gameObject.GetInstanceID();
 
                             if (guid != null && instanceIdToGUID.ContainsKey(gameObject.GetInstanceID()) == false)
@@ -124,59 +124,9 @@ namespace Scellecs.Morpeh.EntityConverter
                     }
 
                 }
-                else if (type == ObjectChangeKind.UpdatePrefabInstances)
-                {
-                    stream.GetUpdatePrefabInstancesEvent(i, out var updatePrefabInstancesEvent);
-                    if (Utilities.SceneUtility.GetSceneGUID(updatePrefabInstancesEvent.scene) != activeSceneGUID)
-                    {
-                        continue;
-                    }
-
-                    for (int j = 0; j < updatePrefabInstancesEvent.instanceIds.Length; j++)
-                    {
-                        var instanceId = updatePrefabInstancesEvent.instanceIds[j];
-
-                        if (instanceIdToGUID.ContainsKey(instanceId) == false)
-                        {
-
-                        }
-
-                        var instance = EditorUtility.InstanceIDToObject(instanceId);
-                        var prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(instance);
-
-                        if (prefabAsset != null)
-                        {
-                            if (instanceIdToGUID.ContainsKey(instanceId) == false)
-                            {
-
-                            }
-                        }
-                    }
-                }
             }
 
             repository.SaveDataAndNotifyChanged();
-        }
-
-        private static string ExtractGuidFromMissingPrefabName(string name)
-        {
-            const string guidPrefix = "Missing Prefab with guid: ";
-            int startIndex = name.LastIndexOf(guidPrefix);
-
-            if (startIndex != -1)
-            {
-                startIndex += guidPrefix.Length;
-                int endIndex = name.IndexOf(')', startIndex);
-
-                if (endIndex == -1)
-                {
-                    endIndex = name.Length;
-                }
-
-                return name.Substring(startIndex, endIndex - startIndex);
-            }
-
-            return null;
         }
     }
 }

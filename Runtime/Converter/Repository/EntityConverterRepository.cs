@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Scellecs.Morpeh.EntityConverter.Collections;
 using Scellecs.Morpeh.EntityConverter.Utilities;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void Initialize()
         {
-            Reload();
+            data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.DATA_ASSET_PATH);
 
             if (IsValid)
             {
@@ -61,7 +62,15 @@ namespace Scellecs.Morpeh.EntityConverter
             }
         }
 
-        public void Reload() => data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.DATA_ASSET_PATH);
+        public void Reload()
+        {
+            data = AssetDatabase.LoadAssetAtPath<EntityConverterDataAsset>(EntityConverterUtility.DATA_ASSET_PATH);
+
+            if (IsValid)
+            {
+                RepositoryDataChanged?.Invoke();
+            }
+        }
 
         public bool TryGetSceneBakedDataAsset(string sceneGuid, out SceneBakedDataAsset sceneBakedData)
         {
@@ -109,6 +118,23 @@ namespace Scellecs.Morpeh.EntityConverter
             if (ValidCheck())
             {
                 return data.AuthoringPrefabGUIDs;
+            }
+
+            return Array.Empty<string>();
+        }
+
+        public IEnumerable<string> GetSceneDependenciesForPrefab(string prefabGUID)
+        {
+            if (data.PrefabToSceneDependencies.TryGetValue(prefabGUID, out var dependecyInfo))
+            {
+                var sceneGUIDs = new List<string>();
+
+                foreach (var sceneGUID in dependecyInfo.refCountPerScene.Keys)
+                {
+                    sceneGUIDs.Add(sceneGUID);
+                }
+
+                return sceneGUIDs;
             }
 
             return Array.Empty<string>();
@@ -214,6 +240,70 @@ namespace Scellecs.Morpeh.EntityConverter
             }
         }
 
+        public void AddPrefabToSceneDependency(string prefabGUID, string sceneGUID)
+        {
+            if (ValidCheck())
+            {
+                if (data.PrefabToSceneDependencies.TryGetValue(prefabGUID, out var dependencyInfo))
+                {
+                    if (dependencyInfo.refCountPerScene.TryGetValue(sceneGUID, out int refCount))
+                    {
+                        dependencyInfo.refCountPerScene[sceneGUID] = refCount + 1;
+                    }
+                    else
+                    {
+                        dependencyInfo.refCountPerScene.Add(sceneGUID, 1);
+                    }
+                }
+                else
+                {
+                    data.PrefabToSceneDependencies.Add(prefabGUID, new PrefabSceneDependencyInfo()
+                    {
+                        refCountPerScene = new SerializableDictionary<string, int>()
+                        {
+                            [sceneGUID] = 1
+                        }
+                    });
+                }
+
+                IsDirty = true;
+            }
+        }
+
+        public void RemovePrefabToSceneDependency(string prefabGUID, string sceneGUID)
+        {
+            if (ValidCheck())
+            {
+                if (data.PrefabToSceneDependencies.TryGetValue(prefabGUID, out var dependencyInfo))
+                {
+                    if (dependencyInfo.refCountPerScene.TryGetValue(sceneGUID, out int refCount))
+                    {
+                        refCount--;
+
+                        if (refCount > 0)
+                        {
+                            dependencyInfo.refCountPerScene[sceneGUID] = refCount;
+                        }
+                        else
+                        {
+                            dependencyInfo.refCountPerScene.Remove(sceneGUID);
+                        }
+
+                        IsDirty = true;
+                    }
+                }
+            }
+        }
+
+        public void RemovePrefabToAllScenesDependencies(string prefabGUID)
+        {
+            if (data.PrefabToSceneDependencies.ContainsKey(prefabGUID))
+            {
+                data.PrefabToSceneDependencies.Remove(prefabGUID);
+                IsDirty = true;
+            }
+        }
+
         public void SaveDataAndNotifyChanged()
         {
             if (IsValid == false || IsDirty == false)
@@ -225,6 +315,7 @@ namespace Scellecs.Morpeh.EntityConverter
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             RepositoryDataChanged?.Invoke();
+            IsDirty = false;
         }
 
         private bool ValidCheck()

@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using Scellecs.Morpeh.EntityConverter.Utilities;
 using System.Collections.Generic;
+using UnityEditor;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -13,6 +14,7 @@ namespace Scellecs.Morpeh.EntityConverter
         private AuthoringBakingService bakingService;
         private BakingProcessor bakingProcessor;
         private SceneDependencyTracker sceneTracker;
+        private List<IAssetPostprocessSystem> postprocessors;
 
         public void Initialize()
         {
@@ -22,17 +24,30 @@ namespace Scellecs.Morpeh.EntityConverter
             bakingService = new AuthoringBakingService(repository, bakingProcessor);
             serviceProvider = EntityConverterServiceProvider.CreateInstance(repository, bakingService);
             sceneTracker = new SceneDependencyTracker(repository);
-
-            var postprocessors = new List<IAssetPostprocessSystem>
+            assetPostprocessor = EntityConverterAssetPostprocessor.CreateInstance();
+            postprocessors = new List<IAssetPostprocessSystem>
             {
                 new ValidateRepositoryPostprocesor(repository),
-                new AutoRebakingPostprocessor(bakingService),
-                new RestoreActiveSelectionPostprocessor()
+                new SceneDependencyTrackerPostprocessor(sceneTracker),
+                new AutoRebakingPostprocessor(bakingService, repository),
+                new RestorePreBakingEditorStatePostprocessor()
             };
 
-            assetPostprocessor = EntityConverterAssetPostprocessor.CreateInstance(postprocessors);
+            EditorApplication.update += Update;
+        }
 
-            sceneTracker.Initialize();
+        //This method is called after OnPostprocessAllAssets.
+        //It's necessary because direct calls from OnPostprocessAllAssets cause unpredictable bugs.
+        private void Update()
+        {
+            if (assetPostprocessor.TryGetContext(out var context))
+            {
+                foreach (var postrpocessor in postprocessors)
+                {
+                    postrpocessor.Execute(context);
+                }
+            }
+
         }
     }
 }

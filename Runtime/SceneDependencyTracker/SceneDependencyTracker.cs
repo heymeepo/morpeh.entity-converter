@@ -58,6 +58,16 @@ namespace Scellecs.Morpeh.EntityConverter
                                 instanceIdToGUID[instanceId] = guid;
                             }
                         }
+                        else
+                        {
+                            var guid = ExtractGuidFromMissingPrefabName(gameObject.name);
+                            var instanceId = gameObject.GetInstanceID();
+
+                            if (guid != null && instanceIdToGUID.ContainsKey(gameObject.GetInstanceID()) == false)
+                            {
+                                instanceIdToGUID[instanceId] = guid;
+                            }
+                        }
                     }
                 }
             }
@@ -65,38 +75,108 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private void ChangesPublished(ref ObjectChangeEventStream stream)
         {
-            for (int i = 0; i < stream.length; ++i)
+            if (repository.IsValid == false)
+            {
+                return;
+            }
+
+            for (int i = 0; i < stream.length; i++)
             {
                 var type = stream.GetEventType(i);
-                switch (type)
+
+                if (type == ObjectChangeKind.CreateGameObjectHierarchy)
                 {
-                    case ObjectChangeKind.CreateGameObjectHierarchy:
-                        stream.GetCreateGameObjectHierarchyEvent(i, out var createGameObjectHierarchyEvent);
-                        var newGameObject = EditorUtility.InstanceIDToObject(createGameObjectHierarchyEvent.instanceId) as GameObject;
-                        Debug.Log($"{type}: {newGameObject} in scene {createGameObjectHierarchyEvent.scene}.");
-                        break;
+                    stream.GetCreateGameObjectHierarchyEvent(i, out var createGameObjectHierarchyEvent);
+                    if (Utilities.SceneUtility.GetSceneGUID(createGameObjectHierarchyEvent.scene) != activeSceneGUID)
+                    {
+                        continue;
+                    }
 
-                    case ObjectChangeKind.DestroyGameObjectHierarchy:
-                        stream.GetDestroyGameObjectHierarchyEvent(i, out var destroyGameObjectHierarchyEvent);
-                        // The destroyed GameObject can not be converted with EditorUtility.InstanceIDToObject as it has already been destroyed.
-                        var destroyParentGo = EditorUtility.InstanceIDToObject(destroyGameObjectHierarchyEvent.parentInstanceId) as GameObject;
-                        Debug.Log($"{type}: {destroyGameObjectHierarchyEvent.instanceId} with parent {destroyParentGo} in scene {destroyGameObjectHierarchyEvent.scene}.");
-                        break;
+                    var newGameObject = EditorUtility.InstanceIDToObject(createGameObjectHierarchyEvent.instanceId) as GameObject;
+                    if (PrefabUtility.IsPartOfPrefabInstance(newGameObject))
+                    {
+                        var prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(newGameObject);
+                        if (prefabAsset != null)
+                        {
+                            var prefabPath = AssetDatabase.GetAssetPath(prefabAsset);
+                            var prefabGUID = AssetDatabase.AssetPathToGUID(prefabPath);
+                            instanceIdToGUID.Add(createGameObjectHierarchyEvent.instanceId, prefabGUID);
+                            repository.AddPrefabToSceneDependency(prefabGUID, activeSceneGUID);
+                        }
+                    }
+                }
+                else if (type == ObjectChangeKind.DestroyGameObjectHierarchy)
+                {
+                    stream.GetDestroyGameObjectHierarchyEvent(i, out var destroyGameObjectHierarchyEvent);
+                    if (Utilities.SceneUtility.GetSceneGUID(destroyGameObjectHierarchyEvent.scene) != activeSceneGUID)
+                    {
+                        continue;
+                    }
 
-                    case ObjectChangeKind.CreateAssetObject:
-                        stream.GetCreateAssetObjectEvent(i, out var createAssetObjectEvent);
-                        var createdAsset = EditorUtility.InstanceIDToObject(createAssetObjectEvent.instanceId);
-                        var createdAssetPath = AssetDatabase.GUIDToAssetPath(createAssetObjectEvent.guid);
-                        Debug.Log($"{type}: {createdAsset} at {createdAssetPath} in scene {createAssetObjectEvent.scene}.");
-                        break;
+                    if (instanceIdToGUID.TryGetValue(destroyGameObjectHierarchyEvent.instanceId, out var prefabGUID))
+                    {
+                        if (instanceIdToGUID.ContainsKey(destroyGameObjectHierarchyEvent.instanceId))
+                        {
+                            instanceIdToGUID.Remove(destroyGameObjectHierarchyEvent.instanceId);
+                        }
 
-                    case ObjectChangeKind.DestroyAssetObject:
-                        stream.GetDestroyAssetObjectEvent(i, out var destroyAssetObjectEvent);
-                        // The destroyed asset can not be converted with EditorUtility.InstanceIDToObject as it has already been destroyed.
-                        Debug.Log($"{type}: Instance Id {destroyAssetObjectEvent.instanceId} with Guid {destroyAssetObjectEvent.guid} in scene {destroyAssetObjectEvent.scene}.");
-                        break;
+                        repository.RemovePrefabToSceneDependency(prefabGUID, activeSceneGUID);
+                    }
+
+                }
+                else if (type == ObjectChangeKind.UpdatePrefabInstances)
+                {
+                    stream.GetUpdatePrefabInstancesEvent(i, out var updatePrefabInstancesEvent);
+                    if (Utilities.SceneUtility.GetSceneGUID(updatePrefabInstancesEvent.scene) != activeSceneGUID)
+                    {
+                        continue;
+                    }
+
+                    for (int j = 0; j < updatePrefabInstancesEvent.instanceIds.Length; j++)
+                    {
+                        var instanceId = updatePrefabInstancesEvent.instanceIds[j];
+
+                        if (instanceIdToGUID.ContainsKey(instanceId) == false)
+                        {
+
+                        }
+
+                        var instance = EditorUtility.InstanceIDToObject(instanceId);
+                        var prefabAsset = PrefabUtility.GetCorrespondingObjectFromSource(instance);
+
+                        if (prefabAsset != null)
+                        {
+                            if (instanceIdToGUID.ContainsKey(instanceId) == false)
+                            {
+
+                            }
+                        }
+                    }
                 }
             }
+
+            repository.SaveDataAndNotifyChanged();
+        }
+
+        private static string ExtractGuidFromMissingPrefabName(string name)
+        {
+            const string guidPrefix = "Missing Prefab with guid: ";
+            int startIndex = name.LastIndexOf(guidPrefix);
+
+            if (startIndex != -1)
+            {
+                startIndex += guidPrefix.Length;
+                int endIndex = name.IndexOf(')', startIndex);
+
+                if (endIndex == -1)
+                {
+                    endIndex = name.Length;
+                }
+
+                return name.Substring(startIndex, endIndex - startIndex);
+            }
+
+            return null;
         }
     }
 }

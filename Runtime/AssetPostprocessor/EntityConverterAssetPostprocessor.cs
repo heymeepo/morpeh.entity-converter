@@ -8,27 +8,31 @@ namespace Scellecs.Morpeh.EntityConverter
     internal sealed class EntityConverterAssetPostprocessor : AssetPostprocessor
     {
         private static EntityConverterAssetPostprocessor instance;
-        private List<IAssetPostprocessSystem> postprocessors = new List<IAssetPostprocessSystem>();
+        private OnAssetPostprocessContext postProcessContext;
 
         private EntityConverterAssetPostprocessor() { }
 
-        public static EntityConverterAssetPostprocessor CreateInstance(List<IAssetPostprocessSystem> postprocessors)
+        public static EntityConverterAssetPostprocessor CreateInstance()
         {
-            instance ??= new EntityConverterAssetPostprocessor()
-            {
-                postprocessors = postprocessors
-            };
-
+            instance ??= new EntityConverterAssetPostprocessor();
             return instance;
+        }
+
+        public bool TryGetContext(out OnAssetPostprocessContext context)
+        {
+            if (postProcessContext != null)
+            {
+                context = postProcessContext;
+                postProcessContext = null;
+                return true;
+            }
+
+            context = null;
+            return false;
         }
 
         private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
         {
-            if (instance.postprocessors == null || instance.postprocessors.Count == 0)
-            {
-                return;
-            }
-
             var importedAuthorings = new List<ImportedAuthoringData>();
 
             foreach (var assetPath in importedAssets)
@@ -69,16 +73,11 @@ namespace Scellecs.Morpeh.EntityConverter
                 }
             }
 
-            var context = new OnAssetPostprocessContext(
+            instance.postProcessContext = new OnAssetPostprocessContext(
                 importedAssets,
                 deletedAssets,
                 importedAuthorings,
                 didDomainReload);
-
-            foreach (var postrpocessor in instance.postprocessors)
-            {
-                postrpocessor.Execute(context);
-            }
         }
     }
 }

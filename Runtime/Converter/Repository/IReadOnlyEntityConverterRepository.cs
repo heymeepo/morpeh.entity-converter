@@ -19,6 +19,8 @@ namespace Scellecs.Morpeh.EntityConverter
         public IEnumerable<string> GetSceneGuids();
 
         public IEnumerable<string> GetPrefabGuids();
+
+        public IEnumerable<string> GetSceneDependenciesForPrefab(string prefabGUID);
     }
 }
 #endif

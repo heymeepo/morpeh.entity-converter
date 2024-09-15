@@ -17,6 +17,9 @@ namespace Scellecs.Morpeh.EntityConverter
         public SerializableDictionary<string, SceneBakedDataAsset> SceneBakedDataAssets { get; private set; } = new SerializableDictionary<string, SceneBakedDataAsset>();
 
         [field: SerializeField]
+        public SerializableDictionary<string, PrefabSceneDependencyInfo> PrefabToSceneDependencies { get; private set; } = new SerializableDictionary<string, PrefabSceneDependencyInfo>();
+
+        [field: SerializeField]
         public SerializableDictionary<string, AssetGUIDInfo> AssetGUIDInfos { get; private set; } = new SerializableDictionary<string, AssetGUIDInfo>();
 
         [field: SerializeField]

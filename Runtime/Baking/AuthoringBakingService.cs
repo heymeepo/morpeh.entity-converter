@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using System.Reflection;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 
@@ -45,6 +46,7 @@ namespace Scellecs.Morpeh.EntityConverter
             if (repository.IsValid)
             {
                 BakePrefabInternal(prefabGUID);
+                BakeDependentScenesForPrefab(prefabGUID);
                 SaveAssets();
             }
         }
@@ -64,26 +66,35 @@ namespace Scellecs.Morpeh.EntityConverter
         {
             if (repository.IsPrefabGuidExists(prefabGUID))
             {
-                var path = AssetDatabase.GUIDToAssetPath(prefabGUID);
-                var prefab = PrefabUtility.LoadPrefabContents(path);
-
-                if (prefab.TryGetComponent(out ConvertToEntity convertToEntity))
+                try
                 {
-                    var bakedData = convertToEntity.bakedDataAsset;
+                    var path = AssetDatabase.GUIDToAssetPath(prefabGUID);
+                    var prefab = PrefabUtility.LoadPrefabContents(path);
 
-                    if (bakedData != null)
+                    if (prefab.TryGetComponent(out ConvertToEntity convertToEntity))
                     {
-                        var info = new PrefabBakingInfo()
+                        var bakedData = convertToEntity.bakedDataAsset;
+
+                        if (bakedData != null)
                         {
-                            root = convertToEntity,
-                            bakedData = bakedData
-                        };
+                            var info = new PrefabBakingInfo()
+                            {
+                                root = convertToEntity,
+                                bakedData = bakedData
+                            };
 
-                        bakingProcessor.ExecutePrefabBake(info);
+                            bakingProcessor.ExecutePrefabBake(info);
+                        }
                     }
-                }
 
-                PrefabUtility.UnloadPrefabContents(prefab);
+                    UnityEngine.Debug.Log($"Prefab baked: {prefab.name}");
+
+                    PrefabUtility.UnloadPrefabContents(prefab);
+                }
+                catch (System.Exception e)
+                {
+                    UnityEngine.Debug.LogError($"Unable to bake prefab: {e.Message}");
+                }
             }
         }
 
@@ -91,32 +102,51 @@ namespace Scellecs.Morpeh.EntityConverter
         {
             if (repository.TryGetSceneBakedDataAsset(sceneGUID, out var bakedDataAsset))
             {
-                var scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
-                var openScene = scene.IsValid() == false;
-
-                if (openScene)
+                try
                 {
-                    var scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
-                    EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
-                    scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
+                    var scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
+                    var openScene = scene.IsValid() == false;
+
+                    if (openScene)
+                    {
+                        var scenePath = AssetDatabase.GUIDToAssetPath(sceneGUID);
+                        EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+                        scene = Utilities.SceneUtility.GetSceneFromGUID(sceneGUID);
+                    }
+
+                    var info = new SceneBakingInfo()
+                    {
+                        scene = scene,
+                        bakedData = bakedDataAsset
+                    };
+
+                    bakingProcessor.ExecuteSceneBake(info);
+
+                    UnityEngine.Debug.Log($"Scene baked: {scene.name}");
+
+                    if (openScene)
+                    {
+                        EditorSceneManager.CloseScene(scene, true);
+                    }
                 }
-
-                var info = new SceneBakingInfo()
+                catch (System.Exception e)
                 {
-                    scene = scene,
-                    bakedData = bakedDataAsset
-                };
-
-                bakingProcessor.ExecuteSceneBake(info);
-
-                if (openScene)
-                {
-                    EditorSceneManager.CloseScene(scene, true);
+                    UnityEngine.Debug.LogError($"Unable to bake scene: {e.Message}");
                 }
             }
         }
 
-        private void SaveDirtyBeforeBaking()
+        internal void BakeDependentScenesForPrefab(string prefabGUID)
+        {
+            var dependentScenes = repository.GetSceneDependenciesForPrefab(prefabGUID);
+
+            foreach (var sceneGUID in dependentScenes)
+            {
+                BakeSceneInternal(sceneGUID);
+            }
+        }
+
+        internal void SaveDirtyBeforeBaking()
         {
             var prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
 
@@ -126,14 +156,12 @@ namespace Scellecs.Morpeh.EntityConverter
                 prefabStage.ClearDirtiness();
             }
 
-            EditorSceneManager.MarkAllScenesDirty();
-            EditorSceneManager.SaveOpenScenes();
-
-            SaveAssets();
+            //EditorSceneManager.SaveOpenScenes();
+            //SaveAssets();
         }
 
         private void SaveAssets()
-        { 
+        {
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }

@@ -4,14 +4,14 @@ using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter.Utilities
 {
-    internal sealed class RestoreActiveSelectionPostprocessor : IAssetPostprocessSystem
+    internal sealed class RestorePreBakingEditorStatePostprocessor : IAssetPostprocessSystem
     {
         private const string SELECTED_OBJECT_PATH_KEY = "LAST_SELECTED_OBJECT_PATH";
 
         private Object lastValidSelectionObject;
         private string lastValidSelectionObjectPath;
 
-        public RestoreActiveSelectionPostprocessor()
+        public RestorePreBakingEditorStatePostprocessor()
         {
             Selection.selectionChanged += TrackSelection;
         }

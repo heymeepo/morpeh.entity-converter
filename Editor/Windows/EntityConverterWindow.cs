@@ -45,9 +45,13 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             button.text = "Bake Active Scene";
             rootVisualElement.Add(button);
 
-            var button2 = new Button(() => entityBakingService.ForceGlobalBake() /*entityBakingService.BakePrefab(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Selection.activeGameObject)))*/);
+            var button2 = new Button(() => entityBakingService.BakePrefab(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Selection.activeGameObject))));
             button2.text = "Bake Active GO";
             rootVisualElement.Add(button2);
+
+            var button4 = new Button(() => entityBakingService.ForceGlobalBake());
+            button4.text = "Force Full Bake";
+            rootVisualElement.Add(button4);
         }
 
         private void OnEnable() => Initialize();

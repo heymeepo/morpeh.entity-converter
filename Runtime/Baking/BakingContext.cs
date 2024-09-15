@@ -11,10 +11,13 @@ namespace Scellecs.Morpeh.EntityConverter
         private List<SetComponentData> components;
         private BakingLookup lookup;
 
+        internal bool unparent;
+
         internal BakingContext(List<SetComponentData> components, BakingLookup lookup)
         {
             this.components = components;
             this.lookup = lookup;
+            unparent = false;
         }
 
         public Entity GetEntityFromLink(EntityLink link)
@@ -28,6 +31,8 @@ namespace Scellecs.Morpeh.EntityConverter
 
             return ent;
         }
+
+        public void UnparentEntity() => unparent = true;
 
         public void SetComponent<T>(T component) where T : struct, IComponent => components.Add(new SetComponentData<T>() { data = component });
 

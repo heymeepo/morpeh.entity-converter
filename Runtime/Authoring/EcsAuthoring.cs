@@ -5,9 +5,6 @@ namespace Scellecs.Morpeh.EntityConverter
 {
     public abstract class EcsAuthoring : MonoBehaviour
     {
-        [field: SerializeField, HideInInspector]
-        public bool ShouldUnparent { get; protected set; } = false;
-
         public EntityLink GetEntityLink() => GetComponent<ConvertToEntity>().GetEntityLink();
 
         public bool IsValidForConversion() => GetComponent<ConvertToEntity>() != null;

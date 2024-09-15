@@ -125,16 +125,19 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public IEnumerable<string> GetSceneDependenciesForPrefab(string prefabGUID)
         {
-            if (data.PrefabToSceneDependencies.TryGetValue(prefabGUID, out var dependecyInfo))
+            if (ValidCheck())
             {
-                var sceneGUIDs = new List<string>();
-
-                foreach (var sceneGUID in dependecyInfo.refCountPerScene.Keys)
+                if (data.PrefabToSceneDependencies.TryGetValue(prefabGUID, out var dependecyInfo))
                 {
-                    sceneGUIDs.Add(sceneGUID);
-                }
+                    var sceneGUIDs = new List<string>();
 
-                return sceneGUIDs;
+                    foreach (var sceneGUID in dependecyInfo.refCountPerScene.Keys)
+                    {
+                        sceneGUIDs.Add(sceneGUID);
+                    }
+
+                    return sceneGUIDs;
+                }
             }
 
             return Array.Empty<string>();
@@ -297,10 +300,13 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void RemovePrefabToAllScenesDependencies(string prefabGUID)
         {
-            if (data.PrefabToSceneDependencies.ContainsKey(prefabGUID))
+            if (ValidCheck())
             {
-                data.PrefabToSceneDependencies.Remove(prefabGUID);
-                IsDirty = true;
+                if (data.PrefabToSceneDependencies.ContainsKey(prefabGUID))
+                {
+                    data.PrefabToSceneDependencies.Remove(prefabGUID);
+                    IsDirty = true;
+                }
             }
         }
 

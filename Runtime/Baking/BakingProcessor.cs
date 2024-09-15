@@ -71,15 +71,14 @@ namespace Scellecs.Morpeh.EntityConverter
                 var converter = lookup.instances[i];
                 var instanceId = converter.gameObject.GetInstanceID();
                 var authorings = converter.GetAuthorings();
-                var shouldUnparent = false;
 
                 for (int j = 0; j < authorings.Length; j++)
                 {
                     var authoring = authorings[j];
                     authoring.OnBake(bakingContext, userContext);
-                    shouldUnparent |= authoring.ShouldUnparent;
                 }
 
+                var shouldUnparent = bakingContext.unparent;
                 var parentIndex = shouldUnparent ? -1 : lookup.instanceIdToParentIndex[instanceId];
                 TransformBaking.BakeTransformGroup(bakingContext, converter.gameObject, parentIndex >= 0);
 
@@ -89,6 +88,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 var addedComponents = new SetComponentData[components.Count];
                 components.CopyTo(addedComponents);
                 components.Clear();
+                bakingContext.unparent = false;
 
                 bakedData.Add(new BakedData()
                 {

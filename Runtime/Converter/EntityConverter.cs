@@ -22,8 +22,8 @@ namespace Scellecs.Morpeh.EntityConverter
             buildPreprocessor = new EntityConverterBuildPreprocessor(repository);
             bakingProcessor = new BakingProcessor();
             bakingService = new AuthoringBakingService(repository, bakingProcessor);
-            serviceProvider = EntityConverterServiceProvider.CreateInstance(repository, bakingService);
             sceneTracker = new SceneDependencyTracker(repository);
+            serviceProvider = EntityConverterServiceProvider.CreateInstance(repository, bakingService);
             assetPostprocessor = EntityConverterAssetPostprocessor.CreateInstance();
             postprocessors = new List<IAssetPostprocessSystem>
             {
@@ -47,7 +47,6 @@ namespace Scellecs.Morpeh.EntityConverter
                     postrpocessor.Execute(context);
                 }
             }
-
         }
     }
 }

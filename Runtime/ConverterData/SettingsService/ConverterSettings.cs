@@ -11,5 +11,4 @@ namespace Scellecs.Morpeh.EntityConverter
         public LogDepthFlags logDepthFlags;
     }
 }
-
 #endif

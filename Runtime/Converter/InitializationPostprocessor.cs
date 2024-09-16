@@ -64,7 +64,6 @@ namespace Scellecs.Morpeh.EntityConverter
                 settingsService.Initialize();
                 authoringDataService.Initialize();
                 sceneDependencyService.Intialize();
-
                 logger.LogInitializationSuccess<InitializationPostprocessor>();
             }
             else

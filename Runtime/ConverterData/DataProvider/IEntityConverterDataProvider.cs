@@ -1,4 +1,5 @@
-﻿namespace Scellecs.Morpeh.EntityConverter
+﻿#if UNITY_EDITOR
+namespace Scellecs.Morpeh.EntityConverter
 {
     internal interface IEntityConverterDataProvider
     {
@@ -7,3 +8,4 @@
         public bool IsValid();
     }
 }
+#endif

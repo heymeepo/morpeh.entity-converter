@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if UNITY_EDITOR
+using System.Collections.Generic;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -13,3 +14,4 @@ namespace Scellecs.Morpeh.EntityConverter
         public bool TryGetSceneBakedDataAsset(string sceneGuid, out SceneBakedDataAsset sceneBakedData);
     }
 }
+#endif

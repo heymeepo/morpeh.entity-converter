@@ -1,4 +1,5 @@
-﻿using Scellecs.Morpeh.EntityConverter.Logger;
+﻿#if UNITY_EDITOR
+using Scellecs.Morpeh.EntityConverter.Logger;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -9,3 +10,4 @@ namespace Scellecs.Morpeh.EntityConverter
         public bool TryGetLogDepthFlags(out LogDepthFlags flags);
     }
 }
+#endif

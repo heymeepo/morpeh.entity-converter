@@ -11,4 +11,5 @@ namespace Scellecs.Morpeh.EntityConverter
         BakeOnEnterPlaymode = 1 << 3
     }
 }
+
 #endif

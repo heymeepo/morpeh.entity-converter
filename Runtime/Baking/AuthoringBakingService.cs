@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Scellecs.Morpeh.EntityConverter.Logger;
 using Scellecs.Morpeh.EntityConverter.Utilities;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -7,15 +8,23 @@ namespace Scellecs.Morpeh.EntityConverter
 {
     internal sealed class AuthoringBakingService : IAuthoringBakingService
     {
-        private readonly IReadOnlyEntityConverterRepository repository;
+        private readonly IReadOnlyAuthoringDataService authoringDataService;
+        private readonly IReadOnlySceneDependencyService sceneDependencyService;
         private readonly BakingProcessor bakingProcessor;
-        private readonly RestorePreBakingEditorState restorePreBakingState;
+        private readonly RestorePreBakingEditorState restorePreBakingEditorState;
+        private readonly ILogger logger;
 
-        public AuthoringBakingService(IReadOnlyEntityConverterRepository repository, BakingProcessor bakingProcessor)
+        public AuthoringBakingService(
+            IReadOnlyAuthoringDataService authoringDataService,
+            IReadOnlySceneDependencyService sceneDependencyService,
+            BakingProcessor bakingProcessor,
+            ILogger logger)
         {
-            this.repository = repository;
+            this.authoringDataService = authoringDataService;
+            this.sceneDependencyService = sceneDependencyService;
             this.bakingProcessor = bakingProcessor;
-            restorePreBakingState = new RestorePreBakingEditorState();
+            this.logger = logger;
+            this.restorePreBakingEditorState = new RestorePreBakingEditorState();
         }
 
         public void ForceGlobalBake()
@@ -23,24 +32,21 @@ namespace Scellecs.Morpeh.EntityConverter
             SavePreBakingEditorState();
             SaveDirtyBeforeBaking();
 
-            if (repository.IsValid)
+            var prefabGuids = authoringDataService.GetPrefabGuids();
+            var sceneGuids = authoringDataService.GetSceneGuids();
+
+            foreach (var guid in prefabGuids)
             {
-                var prefabGuids = repository.GetPrefabGuids();
-                var sceneGuids = repository.GetSceneGuids();
-
-                foreach (var guid in prefabGuids)
-                {
-                    BakePrefabInternal(guid);
-                }
-
-                foreach (var guid in sceneGuids)
-                {
-                    BakeSceneInternal(guid);
-                }
-
-                SaveAssets();
-                RestorePreBakingEditorState();
+                BakePrefabInternal(guid);
             }
+
+            foreach (var guid in sceneGuids)
+            {
+                BakeSceneInternal(guid);
+            }
+
+            SaveAssets();
+            RestorePreBakingEditorState();
         }
 
         public void BakePrefab(string prefabGUID)
@@ -48,13 +54,10 @@ namespace Scellecs.Morpeh.EntityConverter
             SavePreBakingEditorState();
             SaveDirtyBeforeBaking();
 
-            if (repository.IsValid)
-            {
-                BakePrefabInternal(prefabGUID);
-                BakeDependentScenesForPrefab(prefabGUID);
-                SaveAssets();
-                RestorePreBakingEditorState();
-            }
+            BakePrefabInternal(prefabGUID);
+            BakeDependentScenesForPrefab(prefabGUID);
+            SaveAssets();
+            RestorePreBakingEditorState();
         }
 
         public void BakeScene(string sceneGUID)
@@ -62,17 +65,14 @@ namespace Scellecs.Morpeh.EntityConverter
             SavePreBakingEditorState();
             SaveDirtyBeforeBaking();
 
-            if (repository.IsValid)
-            {
-                BakeSceneInternal(sceneGUID);
-                SaveAssets();
-                RestorePreBakingEditorState();
-            }
+            BakeSceneInternal(sceneGUID);
+            SaveAssets();
+            RestorePreBakingEditorState();
         }
 
         internal void BakePrefabInternal(string prefabGUID)
         {
-            if (repository.IsPrefabGuidExists(prefabGUID))
+            if (authoringDataService.IsPrefabGuidExists(prefabGUID))
             {
                 try
                 {
@@ -95,20 +95,19 @@ namespace Scellecs.Morpeh.EntityConverter
                         }
                     }
 
-                    UnityEngine.Debug.Log($"Prefab baked: {prefab.name}");
-
+                    logger.Log($"{nameof(AuthoringBakingService)}: Prefab baked {prefab.name}.", LogDepthFlags.Info);
                     UnityEditor.PrefabUtility.UnloadPrefabContents(prefab);
                 }
                 catch (System.Exception e)
                 {
-                    UnityEngine.Debug.LogError($"Unable to bake prefab: {e.Message}");
+                    logger.LogError($"{nameof(AuthoringBakingService)}: Unable to bake prefab {e.Message}.", LogDepthFlags.Regular);
                 }
             }
         }
 
         internal void BakeSceneInternal(string sceneGUID)
         {
-            if (repository.TryGetSceneBakedDataAsset(sceneGUID, out var bakedDataAsset))
+            if (authoringDataService.TryGetSceneBakedDataAsset(sceneGUID, out var bakedDataAsset))
             {
                 try
                 {
@@ -130,23 +129,23 @@ namespace Scellecs.Morpeh.EntityConverter
 
                     bakingProcessor.ExecuteSceneBake(info);
 
-                    UnityEngine.Debug.Log($"Scene baked: {scene.name}");
-
                     if (openScene)
                     {
                         EditorSceneManager.CloseScene(scene, true);
                     }
+
+                    logger.Log($"{nameof(AuthoringBakingService)}: Scene baked {scene.name}.", LogDepthFlags.Info);
                 }
                 catch (System.Exception e)
                 {
-                    UnityEngine.Debug.LogError($"Unable to bake scene: {e.Message}");
+                    logger.LogError($"{nameof(AuthoringBakingService)}: Unable to bake scene {e.Message}.", LogDepthFlags.Regular);
                 }
             }
         }
 
         internal void BakeDependentScenesForPrefab(string prefabGUID)
         {
-            var dependentScenes = repository.GetSceneDependenciesForPrefab(prefabGUID);
+            var dependentScenes = sceneDependencyService.GetSceneDependenciesForPrefab(prefabGUID);
 
             foreach (var sceneGUID in dependentScenes)
             {
@@ -168,9 +167,9 @@ namespace Scellecs.Morpeh.EntityConverter
             SaveAssets();
         }
 
-        internal void SavePreBakingEditorState() => restorePreBakingState.SaveEditorState();
+        internal void SavePreBakingEditorState() => restorePreBakingEditorState.SaveEditorState();
 
-        internal void RestorePreBakingEditorState() => restorePreBakingState.RestoreEditorState();
+        internal void RestorePreBakingEditorState() => restorePreBakingEditorState.RestoreEditorState();
 
         private void SaveAssets()
         {

@@ -9,14 +9,22 @@ namespace Scellecs.Morpeh.EntityConverter.Collections
     [Serializable]
     public sealed class SerializableHashSet<T> : ISet<T>, ISerializationCallbackReceiver
     {
-        private HashSet<T> set = new HashSet<T>();
+        private HashSet<T> set;
 
         [SerializeField]
-        private List<T> data = new List<T>();
+        private List<T> data;
 
-        public SerializableHashSet() { }
+        public SerializableHashSet() 
+        { 
+            set = new HashSet<T>();
+            data = new List<T>();
+        }
 
-        public SerializableHashSet(IEnumerable<T> collection) => set = new HashSet<T>(collection);
+        public SerializableHashSet(IEnumerable<T> collection)
+        {
+            set = new HashSet<T>(collection);
+            data = new List<T>();
+        }
 
         public void OnBeforeSerialize()
         {

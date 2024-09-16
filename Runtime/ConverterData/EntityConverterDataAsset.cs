@@ -23,7 +23,10 @@ namespace Scellecs.Morpeh.EntityConverter
         public SerializableDictionary<string, AssetGUIDInfo> AssetGUIDInfos { get; private set; } = new SerializableDictionary<string, AssetGUIDInfo>();
 
         [field: SerializeField]
-        public List<ScriptableObject> UserContext { get; private set; } = new List<ScriptableObject>();
+        public List<ScriptableObject> UserContext { get; private set; }
+
+        [field: SerializeField]
+        public ConverterSettings ConverterSettings { get; private set; }
     }
 }
 #endif

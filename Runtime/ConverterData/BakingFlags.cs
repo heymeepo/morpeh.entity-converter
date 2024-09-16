@@ -4,7 +4,7 @@ using System;
 namespace Scellecs.Morpeh.EntityConverter
 {
     [Flags]
-    internal enum EntityConverterBakingFlags
+    internal enum BakingFlags : byte
     { 
         BakeOnDomainReload = 1 << 1,
         BakeOnBuild = 1 << 2,

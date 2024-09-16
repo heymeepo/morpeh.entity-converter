@@ -14,7 +14,7 @@ namespace Scellecs.Morpeh.EntityConverter
         {
             if (context.DidDomainReload)
             {
-                dependencyTracker.Initialize();
+                dependencyTracker.Reload();
             }
         }
     }

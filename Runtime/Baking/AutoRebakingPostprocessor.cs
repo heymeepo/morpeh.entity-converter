@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Scellecs.Morpeh.EntityConverter.Logger;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -8,31 +9,38 @@ namespace Scellecs.Morpeh.EntityConverter
     internal sealed class AutoRebakingPostprocessor : IAssetPostprocessSystem
     {
         private readonly AuthoringBakingService bakingService;
-        private readonly IReadOnlyEntityConverterRepository repository;
+        private readonly IReadOnlySettingsService settingsService;
+        private readonly IReadOnlySceneDependencyService sceneDependencyService;
+        private readonly ILogger logger;
 
         public List<string> sceneGUIDs;
         public List<string> prefabGUIDs;
 
-        public AutoRebakingPostprocessor(AuthoringBakingService bakingService, IReadOnlyEntityConverterRepository repository)
+        public AutoRebakingPostprocessor(
+            AuthoringBakingService bakingService, 
+            IReadOnlySettingsService settingsService,
+            IReadOnlySceneDependencyService sceneDependencyService, 
+            ILogger logger)
         {
             this.bakingService = bakingService;
-            this.repository = repository;
+            this.settingsService = settingsService;
+            this.sceneDependencyService = sceneDependencyService;
+            this.logger = logger;
+
             sceneGUIDs = new List<string>();
             prefabGUIDs = new List<string>();
         }
 
         public void Execute(OnAssetPostprocessContext context)
         {
-            if (repository.IsValid == false)
+            if (context.DidDomainReload)
             {
-                return;
+                if (settingsService.TryGetBakingFlags(out var flags) && (flags & BakingFlags.BakeOnDomainReload) != 0)
+                {
+                    bakingService.ForceGlobalBake();
+                    return;
+                }
             }
-
-            //if (context.DidDomainReload)
-            //{
-            //    bakingService.ForceGlobalBake();
-            //    return;
-            //}
 
             sceneGUIDs.Clear();
             prefabGUIDs.Clear();
@@ -57,7 +65,7 @@ namespace Scellecs.Morpeh.EntityConverter
         private void AddRebakePrefab(string prefabGUID)
         {
             prefabGUIDs.Add(prefabGUID);
-            sceneGUIDs.AddRange(repository.GetSceneDependenciesForPrefab(prefabGUID));
+            sceneGUIDs.AddRange(sceneDependencyService.GetSceneDependenciesForPrefab(prefabGUID));
         }
 
         private void AddRebakeScene(string sceneGUID)
@@ -87,6 +95,8 @@ namespace Scellecs.Morpeh.EntityConverter
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 bakingService.RestorePreBakingEditorState();
+
+                logger.Log($"Total auto rebaked: {prefabGUIDs.Count} prefabs, {sceneGUIDs.Count()} scenes", LogDepthFlags.Info);
             }
         }
     }

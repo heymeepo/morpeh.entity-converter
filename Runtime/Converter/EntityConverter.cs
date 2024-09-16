@@ -7,28 +7,38 @@ namespace Scellecs.Morpeh.EntityConverter
     internal sealed class EntityConverter
     {
         private EntityConverterAssetPostprocessor assetPostprocessor;
-        private EntityConverterBuildPreprocessor buildPreprocessor;
-        private EntityConverterServiceProvider serviceProvider;
-        private EntityConverterRepository repository;
-        private AuthoringBakingService bakingService;
-        private BakingProcessor bakingProcessor;
-        private SceneDependencyTracker sceneTracker;
         private List<IAssetPostprocessSystem> postprocessors;
+
+        private EntityConverterDataProvider dataProvider;
+        private SettingsService settingsService;
+        private AuthoringDataService authoringDataService;
+        private SceneDependencyService sceneDependencyService;
+        private SceneDependencyTracker sceneTracker;
+
+        private BakingProcessor bakingProcessor;
+        private AuthoringBakingService bakingService;
+
+        private Scellecs.Morpeh.EntityConverter.Logger.Logger logger;
 
         public void Initialize()
         {
-            repository = new EntityConverterRepository();
-            buildPreprocessor = new EntityConverterBuildPreprocessor(repository);
-            bakingProcessor = new BakingProcessor();
-            bakingService = new AuthoringBakingService(repository, bakingProcessor);
-            sceneTracker = new SceneDependencyTracker(repository);
-            serviceProvider = EntityConverterServiceProvider.CreateInstance(repository, bakingService);
+            logger = new Scellecs.Morpeh.EntityConverter.Logger.Logger();
+            dataProvider = new EntityConverterDataProvider();
+            settingsService = new SettingsService(dataProvider, logger);
+            authoringDataService = new AuthoringDataService(dataProvider, logger);
+            sceneDependencyService = new SceneDependencyService(dataProvider, authoringDataService, logger);
+            sceneTracker = new SceneDependencyTracker(sceneDependencyService);
+
+            bakingProcessor = new BakingProcessor(logger);
+            bakingService = new AuthoringBakingService(authoringDataService, sceneDependencyService, bakingProcessor, logger);
+
             assetPostprocessor = EntityConverterAssetPostprocessor.CreateInstance();
             postprocessors = new List<IAssetPostprocessSystem>
             {
-                new ValidateRepositoryPostprocesor(repository),
+                new InitializationPostprocessor(dataProvider, settingsService, authoringDataService, sceneDependencyService, logger),
+                new ValidateAuthoringDataPostprocessor(authoringDataService),
                 new SceneDependencyTrackerPostprocessor(sceneTracker),
-                new AutoRebakingPostprocessor(bakingService, repository),
+                new AutoRebakingPostprocessor(bakingService, settingsService, sceneDependencyService, logger),
             };
 
             EditorApplication.update += Update;

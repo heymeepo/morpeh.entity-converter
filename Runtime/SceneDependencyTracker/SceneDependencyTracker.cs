@@ -8,18 +8,18 @@ namespace Scellecs.Morpeh.EntityConverter
 {
     internal sealed class SceneDependencyTracker
     {
-        private readonly EntityConverterRepository repository;
+        private readonly SceneDependencyService sceneDependencyService;
         private Dictionary<int, string> instanceIdToGUID;
 
         private UnityEngine.SceneManagement.Scene activeScene;
         private string activeSceneGUID;
 
-        public SceneDependencyTracker(EntityConverterRepository repository)
+        public SceneDependencyTracker(SceneDependencyService sceneDependencyService)
         {
-            this.repository = repository;
+            this.sceneDependencyService = sceneDependencyService;
         }
 
-        public void Initialize()
+        public void Reload()
         {
             EditorSceneManager.activeSceneChangedInEditMode += (s1, s2) => ChangeActiveScene();
             ChangeActiveScene();
@@ -75,11 +75,6 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private void ChangesPublished(ref ObjectChangeEventStream stream)
         {
-            if (repository.IsValid == false)
-            {
-                return;
-            }
-
             for (int i = 0; i < stream.length; i++)
             {
                 var type = stream.GetEventType(i);
@@ -101,7 +96,7 @@ namespace Scellecs.Morpeh.EntityConverter
                             var prefabPath = AssetDatabase.GetAssetPath(prefabAsset);
                             var prefabGUID = AssetDatabase.AssetPathToGUID(prefabPath);
                             instanceIdToGUID.Add(createGameObjectHierarchyEvent.instanceId, prefabGUID);
-                            repository.AddPrefabToSceneDependency(prefabGUID, activeSceneGUID);
+                            sceneDependencyService.AddPrefabToSceneDependency(prefabGUID, activeSceneGUID);
                         }
                     }
                 }
@@ -120,13 +115,11 @@ namespace Scellecs.Morpeh.EntityConverter
                             instanceIdToGUID.Remove(destroyGameObjectHierarchyEvent.instanceId);
                         }
 
-                        repository.RemovePrefabToSceneDependency(prefabGUID, activeSceneGUID);
+                        sceneDependencyService.RemovePrefabToSceneDependency(prefabGUID, activeSceneGUID);
                     }
 
                 }
             }
-
-            repository.SaveDataAndNotifyChanged();
         }
     }
 }

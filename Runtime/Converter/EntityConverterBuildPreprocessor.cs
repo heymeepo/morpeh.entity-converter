@@ -5,13 +5,13 @@ namespace Scellecs.Morpeh.EntityConverter
 {
     internal sealed class EntityConverterBuildPreprocessor : BuildPlayerProcessor
     {
-        private readonly IReadOnlyEntityConverterRepository repository;
-        public override int callbackOrder => 1;
+        //private readonly IReadOnlyEntityConverterRepository repository;
+        //public override int callbackOrder => 1;
 
-        public EntityConverterBuildPreprocessor(IReadOnlyEntityConverterRepository repository)
-        {
-            this.repository = repository;
-        }
+        //public EntityConverterBuildPreprocessor(IReadOnlyEntityConverterRepository repository)
+        //{
+        //    this.repository = repository;
+        //}
 
         public override void PrepareForBuild(BuildPlayerContext buildPlayerContext)
         {

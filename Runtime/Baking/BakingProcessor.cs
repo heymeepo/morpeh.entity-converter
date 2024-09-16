@@ -6,9 +6,18 @@ using UnityEngine.SceneManagement;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
+    using ILogger = Scellecs.Morpeh.EntityConverter.Logger.ILogger;
+
     internal sealed class BakingProcessor
     {
+        private readonly ILogger logger;
+
         private List<ScriptableObject> userContext;
+
+        public BakingProcessor(ILogger logger)
+        {
+            this.logger = logger;
+        }
 
         public void ExecutePrefabBake(PrefabBakingInfo prefabBakingInfo)
         {

@@ -9,13 +9,20 @@ namespace Scellecs.Morpeh.EntityConverter.Collections
     [Serializable]
     public sealed class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ISerializationCallbackReceiver
     {
-        private Dictionary<TKey, TValue> dictionary = new Dictionary<TKey, TValue>();
+        private Dictionary<TKey, TValue> dictionary;
 
         [SerializeField]
-        private List<TKey> keys = new List<TKey>();
+        private List<TKey> keys;
 
         [SerializeField]
-        private List<TValue> values = new List<TValue>();
+        private List<TValue> values;
+
+        public SerializableDictionary()
+        {
+            dictionary = new Dictionary<TKey, TValue>();
+            keys = new List<TKey>();
+            values = new List<TValue>();
+        }
 
         public void OnBeforeSerialize()
         {

@@ -9,9 +9,6 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 {
     public class EntityConverterWindow : EditorWindow
     {
-        private IReadOnlyEntityConverterRepository repository;
-        private IAuthoringBakingService entityBakingService;
-
         private StyleSheet baseStyleSheet;
 
         private VisualElement scenesRoot;
@@ -28,11 +25,11 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             rootVisualElement.Clear();
 
-            if (repository.IsValid == false)
-            {
-                CreateConverterDataAssetCreationButton();
-                return;
-            }
+            //if (repository == null)
+            //{
+            //    CreateConverterDataAssetCreationButton();
+            //    return;
+            //}
 
             LoadStyleSheet();
             CreateScenesGUI();
@@ -41,28 +38,28 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             rootVisualElement.Add(scenesRoot);
             rootVisualElement.Add(optionsRoot);
 
-            var button = new Button(() => entityBakingService.BakeScene(AssetDatabase.AssetPathToGUID(EditorSceneManager.GetActiveScene().path)));
-            button.text = "Bake Active Scene";
-            rootVisualElement.Add(button);
+            //var button = new Button(() => entityBakingService.BakeScene(AssetDatabase.AssetPathToGUID(EditorSceneManager.GetActiveScene().path)));
+            //button.text = "Bake Active Scene";
+            //rootVisualElement.Add(button);
 
-            var button2 = new Button(() => entityBakingService.BakePrefab(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Selection.activeGameObject))));
-            button2.text = "Bake Active GO";
-            rootVisualElement.Add(button2);
+            //var button2 = new Button(() => entityBakingService.BakePrefab(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Selection.activeGameObject))));
+            //button2.text = "Bake Active GO";
+            //rootVisualElement.Add(button2);
 
-            var button4 = new Button(() => entityBakingService.ForceGlobalBake());
-            button4.text = "Force Full Bake";
-            rootVisualElement.Add(button4);
+            //var button4 = new Button(() => entityBakingService.ForceGlobalBake());
+            //button4.text = "Force Full Bake";
+            //rootVisualElement.Add(button4);
         }
 
-        private void OnEnable() => Initialize();
+        //private void OnEnable() => Initialize();
 
-        private void OnDisable() => repository.RepositoryDataChanged -= CreateGUI;
+        //private void OnDisable() => repository.RepositoryDataChanged -= CreateGUI;
 
         private void Initialize()
         {
-            repository = EntityConverterServiceProvider.Instance.Repository;
-            entityBakingService = EntityConverterServiceProvider.Instance.EntityBakingService;
-            repository.RepositoryDataChanged += CreateGUI;
+            //repository = EntityConverterServiceProvider.Instance.Repository;
+            //entityBakingService = EntityConverterServiceProvider.Instance.EntityBakingService;
+            //repository.RepositoryDataChanged += CreateGUI;
         }
 
         private void LoadStyleSheet()
@@ -73,53 +70,53 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         private void CreateScenesGUI()
         {
-            scenesRoot = new VisualElement();
+            //scenesRoot = new VisualElement();
 
-            var scenesFoldout = new Foldout();
-            scenesFoldout.AddToClassList("scenes-foldout");
-            scenesFoldout.text = "Scenes";
-            scenesRoot.Add(scenesFoldout);
+            //var scenesFoldout = new Foldout();
+            //scenesFoldout.AddToClassList("scenes-foldout");
+            //scenesFoldout.text = "Scenes";
+            //scenesRoot.Add(scenesFoldout);
 
-            var scenes = repository.GetSceneGuids();
+            //var scenes = repository.GetSceneGuids();
 
-            foreach (var sceneGuid in scenes)
-            {
-                var pair = new VisualElement();
-                pair.AddToClassList("scene-scene-data-pair");
+            //foreach (var sceneGuid in scenes)
+            //{
+            //    var pair = new VisualElement();
+            //    pair.AddToClassList("scene-scene-data-pair");
 
-                var scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
-                var sceneField = new ObjectField();
-                sceneField.AddToClassList("scene-object-field");
-                sceneField.objectType = typeof(SceneAsset);
-                sceneField.value = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
-                sceneField.SetEnabled(false);
-                pair.Add(sceneField);
+            //    var scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
+            //    var sceneField = new ObjectField();
+            //    sceneField.AddToClassList("scene-object-field");
+            //    sceneField.objectType = typeof(SceneAsset);
+            //    sceneField.value = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+            //    sceneField.SetEnabled(false);
+            //    pair.Add(sceneField);
 
-                if (repository.TryGetSceneBakedDataAsset(sceneGuid, out var sceneBakedData))
-                {
-                    var bakedDataField = new ObjectField();
-                    bakedDataField.AddToClassList("scene-baked-data-field");
-                    bakedDataField.objectType = typeof(SceneBakedDataAsset);
-                    bakedDataField.value = sceneBakedData;
-                    bakedDataField.SetEnabled(false);
-                    pair.Add(bakedDataField);
-                }
-                else
-                {
-                    var creationButton = new Button(() =>
-                    {
-                        if (repository.IsValid)
-                        {
-                            var asset = EntityConverterUtility.CreateSceneBakedDataAsset(scenePath);
-                        }
-                    });
-                    creationButton.AddToClassList("scene-baked-data-field");
-                    creationButton.text = "Create Scene Baked Data Asset";
-                    pair.Add(creationButton);
-                }
+            //    if (repository.TryGetSceneBakedDataAsset(sceneGuid, out var sceneBakedData))
+            //    {
+            //        var bakedDataField = new ObjectField();
+            //        bakedDataField.AddToClassList("scene-baked-data-field");
+            //        bakedDataField.objectType = typeof(SceneBakedDataAsset);
+            //        bakedDataField.value = sceneBakedData;
+            //        bakedDataField.SetEnabled(false);
+            //        pair.Add(bakedDataField);
+            //    }
+            //    else
+            //    {
+            //        var creationButton = new Button(() =>
+            //        {
+            //            if (repository.IsValid)
+            //            {
+            //                var asset = EntityConverterUtility.CreateSceneBakedDataAsset(scenePath);
+            //            }
+            //        });
+            //        creationButton.AddToClassList("scene-baked-data-field");
+            //        creationButton.text = "Create Scene Baked Data Asset";
+            //        pair.Add(creationButton);
+            //    }
 
-                scenesFoldout.Add(pair);
-            }
+            //    scenesFoldout.Add(pair);
+            //}
         }
 
         private void CreateOptionsGUI()
@@ -180,9 +177,9 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             rootVisualElement.Add(createButton);
         }
 
-        private static int SetFlag(int intFlags, EntityConverterBakingFlags flag, bool value)
+        private static int SetFlag(int intFlags, BakingFlags flag, bool value)
         {
-            var flags = (EntityConverterBakingFlags)intFlags;
+            var flags = (BakingFlags)intFlags;
             return (int)(value ? flags | flag : flags & ~flag);
         }
     }

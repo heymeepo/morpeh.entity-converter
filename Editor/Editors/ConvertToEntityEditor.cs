@@ -1,5 +1,4 @@
 ﻿using Scellecs.Morpeh.EntityConverter.Utilities;
-using System.ComponentModel;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -32,7 +31,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                         paddingLeft = 10,
                         paddingRight = 10,
                         paddingTop = 10,
-                        paddingBottom = 10,
+                        paddingBottom = 10
                     }
                 };
 

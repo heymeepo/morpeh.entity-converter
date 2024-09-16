@@ -11,34 +11,34 @@ namespace Scellecs.Morpeh.EntityConverter
         }
     }
 
-    public abstract class SimpleAuthoring<T1, T2> : EcsAuthoring 
+    public abstract class SimpleAuthoring<T0, T1> : EcsAuthoring
+        where T0 : struct, IComponent
         where T1 : struct, IComponent
-        where T2 : struct, IComponent
     {
+        public T0 component0;
         public T1 component1;
-        public T2 component2;
 
         public sealed override void OnBake(BakingContext bakingContext, UserContext userContext)
         {
+            bakingContext.SetComponent(component0);
             bakingContext.SetComponent(component1);
-            bakingContext.SetComponent(component2);
         }
     }
 
-    public abstract class SimpleAuthoring<T1, T2, T3> : EcsAuthoring 
+    public abstract class SimpleAuthoring<T0, T1, T2> : EcsAuthoring
+        where T0 : struct, IComponent
         where T1 : struct, IComponent
         where T2 : struct, IComponent
-        where T3 : struct, IComponent
     {
+        public T0 component0;
         public T1 component1;
         public T2 component2;
-        public T3 component3;
 
         public sealed override void OnBake(BakingContext bakingContext, UserContext userContext)
         {
+            bakingContext.SetComponent(component0);
             bakingContext.SetComponent(component1);
             bakingContext.SetComponent(component2);
-            bakingContext.SetComponent(component3);
         }
     }
 }

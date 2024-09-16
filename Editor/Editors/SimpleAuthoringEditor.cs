@@ -25,8 +25,8 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var container = new VisualElement();
-            var field1 = CreateCompoentField(serializedObject, "component1");
-            var field2 = CreateCompoentField(serializedObject, "component2");
+            var field1 = CreateCompoentField(serializedObject, "component0");
+            var field2 = CreateCompoentField(serializedObject, "component1");
             
             container.Add(field1);
             container.Add(field2);
@@ -41,9 +41,9 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         public override VisualElement CreateInspectorGUI()
         {
             var container = new VisualElement();
-            var field1 = CreateCompoentField(serializedObject, "component1");
-            var field2 = CreateCompoentField(serializedObject, "component2");
-            var field3 = CreateCompoentField(serializedObject, "component3");
+            var field1 = CreateCompoentField(serializedObject, "component0");
+            var field2 = CreateCompoentField(serializedObject, "component1");
+            var field3 = CreateCompoentField(serializedObject, "component2");
 
             container.Add(field1);
             container.Add(field2);

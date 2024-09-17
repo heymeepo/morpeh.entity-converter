@@ -1,4 +1,5 @@
 ﻿using Scellecs.Morpeh.EntityConverter.Editor.Baking;
+using Scellecs.Morpeh.EntityConverter.Editor.Settings;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
@@ -8,21 +9,32 @@ using UnityEngine.UIElements;
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
 {
+    using SettingsService = Scellecs.Morpeh.EntityConverter.Editor.Settings.SettingsService;
+
     public class EntityConverterWindow : EditorWindow
     {
+        private SettingsService settingsService;
+        private IReadOnlyAuthoringDataService authoringDataService;
+        private IAuthoringBakingService bakingService;
+
         private StyleSheet baseStyleSheet;
 
         private VisualElement scenesRoot;
         private VisualElement optionsRoot;
 
-        //[MenuItem("Tools/Morpeh/Entity Converter")]
-        public static void ShowWindow()
+        internal void Initialize(
+            SettingsService settingsService,
+            IReadOnlyAuthoringDataService authoringDataService,
+            IAuthoringBakingService bakingService)
         {
-            EntityConverterWindow window = GetWindow<EntityConverterWindow>();
-            window.titleContent = new GUIContent("Entity Converter");
+            this.settingsService = settingsService;
+            this.authoringDataService = authoringDataService;
+            this.bakingService = bakingService;
+
+            ImplCreateGUI();
         }
 
-        public void CreateGUI()
+        private void ImplCreateGUI()
         {
             rootVisualElement.Clear();
 
@@ -55,13 +67,6 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         //private void OnEnable() => Initialize();
 
         //private void OnDisable() => repository.RepositoryDataChanged -= CreateGUI;
-
-        private void Initialize()
-        {
-            //repository = EntityConverterServiceProvider.Instance.Repository;
-            //entityBakingService = EntityConverterServiceProvider.Instance.EntityBakingService;
-            //repository.RepositoryDataChanged += CreateGUI;
-        }
 
         private void LoadStyleSheet()
         {

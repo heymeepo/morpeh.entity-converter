@@ -1,5 +1,6 @@
 ﻿using Scellecs.Morpeh.EntityConverter.Editor.Baking;
 using UnityEditor;
+using UnityEngine;
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
 {
@@ -16,7 +17,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         private EditorWindowFactory() { }
 
         public static EditorWindowFactory CreateInstance(
-            SettingsService settingsService, 
+            SettingsService settingsService,
             IReadOnlyAuthoringDataService authoringDataService,
             IAuthoringBakingService bakingService)
         {
@@ -32,7 +33,12 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         [MenuItem("Tools/Morpeh/Entity Converter")]
         private static void CreateEntityConverterWindow()
         {
-            EntityConverterWindow window = EditorWindow.GetWindow<EntityConverterWindow>();
+            if (instance != null)
+            {
+                EntityConverterWindow window = EditorWindow.GetWindow<EntityConverterWindow>();
+                window.titleContent = new GUIContent("Entity Converter");
+                window.Initialize(instance.settingsService, instance.authoringDataService, instance.bakingService);
+            }
         }
     }
 }

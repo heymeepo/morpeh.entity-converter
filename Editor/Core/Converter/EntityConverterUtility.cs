@@ -15,6 +15,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             var converterData = ScriptableObject.CreateInstance<EntityConverterDataAsset>();
             AssetDatabase.CreateAsset(converterData, DATA_ASSET_PATH);
             converterData.ConverterSettings.bakingFlags = (BakingFlags)0xFF;
+            EditorUtility.SetDirty(converterData);
             AssetDatabase.SaveAssets();
             return converterData;
         }

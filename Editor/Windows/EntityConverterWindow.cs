@@ -1,10 +1,12 @@
 ﻿using Scellecs.Morpeh.EntityConverter.Editor.Baking;
 using Scellecs.Morpeh.EntityConverter.Logs;
+using Scellecs.Morpeh.EntityConverter.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.PackageManager.UI;
+using UnityEditor.SceneManagement;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -67,21 +69,11 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
             var scenesRoot = CreateScenesGUI();
             var optionsRoot = CreateOptionsGUI();
+            var bakeButtonsRoot = CreateBakeButtonsGUI();
 
             rootVisualElement.Add(scenesRoot);
             rootVisualElement.Add(optionsRoot);
-
-            //var button = new Button(() => entityBakingService.BakeScene(AssetDatabase.AssetPathToGUID(EditorSceneManager.GetActiveScene().path)));
-            //button.text = "Bake Active Scene";
-            //rootVisualElement.Add(button);
-
-            //var button2 = new Button(() => entityBakingService.BakePrefab(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(Selection.activeGameObject))));
-            //button2.text = "Bake Active GO";
-            //rootVisualElement.Add(button2);
-
-            //var button4 = new Button(() => entityBakingService.ForceGlobalBake());
-            //button4.text = "Force Full Bake";
-            //rootVisualElement.Add(button4);
+            rootVisualElement.Add(bakeButtonsRoot);
         }
 
         private VisualElement CreateConverterDataAssetCreationButton()
@@ -216,16 +208,11 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             var internalDebugToggle = CreateLogFlagsToggle("Internal Debug", LogFlags.InternalDebug, true);
             var debugToggle = CreateLogFlagsToggle("Debug", LogFlags.Debug, true);
             var infoToggle = CreateLogFlagsToggle("Info", LogFlags.Info, true);
-            var regular = CreateLogFlagsToggle("Regular", LogFlags.Regular, false);
-            var fatalToggle = CreateLogFlagsToggle("Fatal", LogFlags.Fatal, false);
 
             optionsRoot.Add(logsOptionsHeader);
             optionsRoot.Add(internalDebugToggle);
             optionsRoot.Add(debugToggle);
             optionsRoot.Add(infoToggle);
-            optionsRoot.Add(infoToggle);
-            optionsRoot.Add(regular);
-            optionsRoot.Add(fatalToggle);
 
             Toggle CreateLogFlagsToggle(string toggleText, LogFlags flag, bool setEnabled)
             {
@@ -246,6 +233,26 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
 
             return optionsRoot;
+        }
+
+        private VisualElement CreateBakeButtonsGUI()
+        {
+            var root = new VisualElement();
+
+            var bakePrefabButton = new Button(() => bakingService.BakePrefab(Utilities.PrefabUtility.GetActivePrefabGUID()));
+            bakePrefabButton.text = "Bake Active Prefab";
+
+            var bakeSceneButton = new Button(() => bakingService.BakeScene(SceneUtility.GetActiveSceneGUID()));
+            bakeSceneButton.text = "Bake Active Scene";
+
+            var globalRebakeButton = new Button(() => bakingService.ForceGlobalBake());
+            globalRebakeButton.text = "Force Global Rebake";
+
+            root.Add(bakePrefabButton);
+            root.Add(bakeSceneButton);
+            root.Add(globalRebakeButton);
+
+            return root;
         }
 
         private void OnDestroy()

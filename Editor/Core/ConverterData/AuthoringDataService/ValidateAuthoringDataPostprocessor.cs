@@ -26,7 +26,9 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                         break;
 
                     case AuthoringType.SceneBakedData:
-                        authoringDataService.AddSceneBakedData(data.GUID, data.asset as SceneBakedDataAsset);
+                        {
+                            authoringDataService.AddSceneBakedData(data.GUID, data.asset as SceneBakedDataAsset);
+                        }
                         break;
                 }
             }

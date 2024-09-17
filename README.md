@@ -28,9 +28,11 @@ https://github.com/heymeepo/morpeh.entity-converter.git
 
 ## Usage
 
-Since GameObjects are used as configurations for future entities, they are only needed in the editor, so they should be tagged as "EditorOnly".```ConvertToEntity``` sets this tag by default.
+Since GameObjects are used as configurations for future entities, they are only needed in the editor. Therefore, they should be tagged as "EditorOnly." ```ConvertToEntity``` sets this tag by default.
 
-**```ConvertToEntity```** is a MonoBehaviour class that you need to attach to each GameObject in the (prefab/scene object) hierarchy that you want to convert into an entity.
+**```ConvertToEntity```** is a MonoBehaviour class that you need to attach to each GameObject in the (prefab/scene object) hierarchy that you want to convert into an entity. 
+
+In prefabs, it can be attached to any objects, but it must also be on the root object. For scene objects, there are no specific restrictions — it can be placed on any GameObject you need.
 
 **```PrefabBakedDataAsset```**  is a ScriptableObject that is placed in ```ConvertToEntity``` root object. It is a serialized representation of your entity hierarchy based on baked GameObjects, and will be used at runtime.
 
@@ -42,7 +44,7 @@ Since GameObjects are used as configurations for future entities, they are only 
 > Any **```: EcsAuthoring```** must be wrapped in the ```#if UNITY_EDITOR``` directive.
 
 ### Getting started
-First, you need to create an global entity converter asset.
+First, you need to create the global entity converter asset.
 
 To do this, go to **Tools -> Morpeh -> Entity Converter**, and click the ``Create Entity Converter Asset`` button. This will create a main asset in the Plugins folder to store all data and settings for the converter. In this window, you can create assets for baking scenes, adjust settings, and manually manage the baking process.
 

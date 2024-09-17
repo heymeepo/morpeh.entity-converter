@@ -9,6 +9,8 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
     internal sealed class EntityConverter
     {
+        private Logger logger;
+
         private EntityConverterDataProvider dataProvider;
         private SettingsService settingsService;
         private AuthoringDataService authoringDataService;
@@ -21,7 +23,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         private EntityConverterAssetPostprocessor assetPostprocessor;
         private List<IAssetPostprocessSystem> postprocessors;
 
-        private Logger logger;
+        private EditorWindowFactory editorWindowFactory;
 
         public void Initialize()
         {
@@ -45,6 +47,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                 new PlaymodePostprocessor(authoringDataService, settingsService, logger)
             };
 
+            editorWindowFactory = EditorWindowFactory.CreateInstance(settingsService, authoringDataService, bakingService);
             EditorApplication.update += Update;
         }
 

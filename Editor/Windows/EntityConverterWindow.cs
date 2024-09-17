@@ -15,7 +15,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         private VisualElement scenesRoot;
         private VisualElement optionsRoot;
 
-        [MenuItem("Tools/Morpeh/Entity Converter")]
+        //[MenuItem("Tools/Morpeh/Entity Converter")]
         public static void ShowWindow()
         {
             EntityConverterWindow window = GetWindow<EntityConverterWindow>();

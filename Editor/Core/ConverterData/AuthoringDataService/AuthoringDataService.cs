@@ -19,7 +19,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void Initialize()
         {
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 try
                 {
@@ -114,7 +114,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void AddAuthoringScene(string sceneGUID)
         {
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.ContainsKey(sceneGUID) == false)
                 {
@@ -131,7 +131,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void AddAuthoringPrefab(string prefabGUID)
         {
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.ContainsKey(prefabGUID) == false)
                 {
@@ -148,7 +148,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void AddSceneBakedData(string assetGUID, SceneBakedDataAsset sceneAsset)
         {
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.ContainsKey(assetGUID) == false)
                 {
@@ -166,7 +166,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void RemoveAuthoringAsset(string GUID)
         {
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.TryGetValue(GUID, out var assetInfo))
                 {

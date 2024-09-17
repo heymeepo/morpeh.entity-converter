@@ -13,9 +13,10 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
     public class EntityConverterWindow : EditorWindow
     {
-        private SettingsService settingsService;
+        private IEntityConverterDataNotifier dataNotifier;
         private IReadOnlyAuthoringDataService authoringDataService;
         private IAuthoringBakingService bakingService;
+        private SettingsService settingsService;
 
         private StyleSheet baseStyleSheet;
 
@@ -23,10 +24,12 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         private VisualElement optionsRoot;
 
         internal void Initialize(
-            SettingsService settingsService,
+            IEntityConverterDataNotifier dataNotifier,
             IReadOnlyAuthoringDataService authoringDataService,
-            IAuthoringBakingService bakingService)
+            IAuthoringBakingService bakingService,
+            SettingsService settingsService)
         {
+            this.dataNotifier = dataNotifier;
             this.settingsService = settingsService;
             this.authoringDataService = authoringDataService;
             this.bakingService = bakingService;

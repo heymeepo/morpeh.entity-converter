@@ -23,7 +23,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Settings
             if (dataProvider.TryGetData(out var data))
             {
                 var settings = data.ConverterSettings;
-                //logger.SetLogFlags(settings.logDepthFlags);
+                logger.SetLogFlags(settings.logDepthFlags);
             }
             else
             {
@@ -65,7 +65,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Settings
 
         public void SetLogDepthFlags(LogDepthFlags flags)
         {
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 data.ConverterSettings.logDepthFlags = flags;
                 logger.SetLogFlags(flags);

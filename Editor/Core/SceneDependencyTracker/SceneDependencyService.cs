@@ -117,7 +117,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                 return;
             }
 
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.PrefabToSceneDependencies.TryGetValue(prefabGUID, out var dependencyInfo))
                 {
@@ -151,7 +151,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                 return;
             }
 
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.PrefabToSceneDependencies.TryGetValue(prefabGUID, out var dependencyInfo))
                 {

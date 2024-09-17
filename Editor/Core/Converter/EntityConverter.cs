@@ -47,7 +47,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                 new PlaymodePostprocessor(authoringDataService, settingsService, logger)
             };
 
-            editorWindowFactory = EditorWindowFactory.CreateInstance(settingsService, authoringDataService, bakingService);
+            editorWindowFactory = EditorWindowFactory.CreateInstance(dataProvider, authoringDataService, bakingService, settingsService);
             EditorApplication.update += Update;
         }
 
@@ -61,6 +61,11 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                 {
                     postrpocessor.Execute(context);
                 }
+            }
+
+            if (dataProvider.IsValid())
+            {
+                dataProvider.NotifyChangedIfDirty();
             }
         }
     }

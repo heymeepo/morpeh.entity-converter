@@ -33,7 +33,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             if (IsInitializeCalledFirstTimeThisSession() == false)
             {
-                Initialize();
+                InitializeServices();
             }
 
             if (context.DidDomainReload)
@@ -49,14 +49,14 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
                     if (asset as EntityConverterDataAsset != null)
                     {
-                        Initialize();
+                        InitializeServices();
                         break;
                     }
                 }
             }
         }
 
-        private void Initialize()
+        private void InitializeServices()
         {
             dataProvider.Reload();
 
@@ -66,6 +66,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                 authoringDataService.Initialize();
                 sceneDependencyService.Intialize();
                 logger.LogInitializationSuccess<InitializationPostprocessor>();
+                dataProvider.SetDirty();
             }
             else
             {

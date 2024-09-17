@@ -10,22 +10,25 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
     {
         private static EditorWindowFactory instance;
 
-        private SettingsService settingsService;
+        private IEntityConverterDataNotifier dataNotifier;
         private IReadOnlyAuthoringDataService authoringDataService;
         private IAuthoringBakingService bakingService;
+        private SettingsService settingsService;
 
         private EditorWindowFactory() { }
 
         public static EditorWindowFactory CreateInstance(
-            SettingsService settingsService,
+            IEntityConverterDataNotifier dataNotifier,
             IReadOnlyAuthoringDataService authoringDataService,
-            IAuthoringBakingService bakingService)
+            IAuthoringBakingService bakingService,
+            SettingsService settingsService)
         {
             instance ??= new EditorWindowFactory()
             {
-                settingsService = settingsService,
+                dataNotifier = dataNotifier,
                 authoringDataService = authoringDataService,
-                bakingService = bakingService
+                bakingService = bakingService,
+                settingsService = settingsService
             };
             return instance;
         }
@@ -37,7 +40,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             {
                 EntityConverterWindow window = EditorWindow.GetWindow<EntityConverterWindow>();
                 window.titleContent = new GUIContent("Entity Converter");
-                window.Initialize(instance.settingsService, instance.authoringDataService, instance.bakingService);
+                window.Initialize(instance.dataNotifier, instance.authoringDataService, instance.bakingService, instance.settingsService);
             }
         }
     }

@@ -2,7 +2,7 @@
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
 {
-    internal class OnAssetPostprocessContext
+    internal sealed class OnAssetPostprocessContext
     {
         public IEnumerable<string> AllImportedAssetsPaths { get; private set; }
         public IEnumerable<string> AllDeletedAssetsPaths { get; private set; }

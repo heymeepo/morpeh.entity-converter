@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -21,6 +22,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             if (postProcessContext != null)
             {
+                Debug.Log(true);
                 context = postProcessContext;
                 postProcessContext = null;
                 return true;
@@ -72,11 +74,31 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
                 }
             }
 
-            instance.postProcessContext = new OnAssetPostprocessContext(
-                importedAssets,
-                deletedAssets,
-                importedAuthorings,
-                didDomainReload);
+            if (instance.postProcessContext != null)
+            {
+                var importedAssetsCombined = new List<string>(instance.postProcessContext.AllImportedAssetsPaths);
+                importedAssetsCombined.AddRange(importedAssets);
+
+                var deletedAssetsCombined = new List<string>(instance.postProcessContext.AllDeletedAssetsPaths);
+                deletedAssetsCombined.AddRange(deletedAssets);
+
+                var importedAuthoringsCombined = new List<ImportedAuthoringData>(instance.postProcessContext.ImportedAuthorings);
+                importedAuthoringsCombined.AddRange(importedAuthorings);
+
+                instance.postProcessContext = new OnAssetPostprocessContext(
+                    importedAssetsCombined.Distinct(),
+                    deletedAssetsCombined.Distinct(),
+                    importedAuthoringsCombined.Distinct(ImportedAuthoringDataEqualityComparer.Default),
+                    _ = instance.postProcessContext.DidDomainReload);
+            }
+            else
+            {
+                instance.postProcessContext = new OnAssetPostprocessContext(
+                    importedAssets,
+                    deletedAssets,
+                    importedAuthorings,
+                    didDomainReload);
+            }
         }
     }
 }

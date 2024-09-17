@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 
-namespace Scellecs.Morpeh.EntityConverter.Logger
+namespace Scellecs.Morpeh.EntityConverter.Logs
 {
     internal sealed class Logger : ILogger
     {

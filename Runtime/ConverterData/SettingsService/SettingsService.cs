@@ -1,6 +1,5 @@
 ﻿#if UNITY_EDITOR
-
-using Scellecs.Morpeh.EntityConverter.Logger;
+using Scellecs.Morpeh.EntityConverter.Logs;
 using System;
 using UnityEditor;
 
@@ -11,9 +10,9 @@ namespace Scellecs.Morpeh.EntityConverter
         private const string TEMP_BAKING_FLAGS_KEY = "__EC_TEMP_BAKING_FLAGS";
 
         private readonly IEntityConverterDataProvider dataProvider;
-        private readonly Logger.Logger logger;
+        private readonly Logger logger;
 
-        public SettingsService(IEntityConverterDataProvider dataProvider, Logger.Logger logger)
+        public SettingsService(IEntityConverterDataProvider dataProvider, Logger logger)
         {
             this.dataProvider = dataProvider;
             this.logger = logger;
@@ -46,7 +45,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public bool TryGetBakingFlags(out BakingFlags flags)
         {
-            var temp = EditorPrefs.GetInt(TEMP_BAKING_FLAGS_KEY, int.MaxValue);
+            var temp = SessionState.GetInt(TEMP_BAKING_FLAGS_KEY, int.MaxValue);
 
             if(temp != int.MaxValue) 
             {
@@ -83,13 +82,13 @@ namespace Scellecs.Morpeh.EntityConverter
 
         public void SetTemporaryBakingFlags(BakingFlags flags)
         {
-            EditorPrefs.SetInt(TEMP_BAKING_FLAGS_KEY, (int)flags);
+            SessionState.SetInt(TEMP_BAKING_FLAGS_KEY, (int)flags);
             logger.Log($"Temp BakingFlags were set. Value: {Convert.ToString((byte)flags, 2).PadLeft(8, '0')} ", LogDepthFlags.InternalDebug);
         }
 
         public void ClearTemporaryBakingFlags()
         {
-            EditorPrefs.SetInt(TEMP_BAKING_FLAGS_KEY, int.MaxValue);
+            SessionState.SetInt(TEMP_BAKING_FLAGS_KEY, int.MaxValue);
             logger.Log("Temp BakingFlags were cleared.", LogDepthFlags.InternalDebug);
         }
     }

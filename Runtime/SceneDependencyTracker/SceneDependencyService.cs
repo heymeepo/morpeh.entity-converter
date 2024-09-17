@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEditor.SceneManagement;
 using UnityEditor;
-using Scellecs.Morpeh.EntityConverter.Logger;
+using Scellecs.Morpeh.EntityConverter.Logs;
 using Scellecs.Morpeh.EntityConverter.Collections;
 using System.Collections.Generic;
 using System;

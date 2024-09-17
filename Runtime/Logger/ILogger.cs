@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-namespace Scellecs.Morpeh.EntityConverter.Logger
+namespace Scellecs.Morpeh.EntityConverter.Logs
 {
     internal interface ILogger
     {

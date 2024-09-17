@@ -1,5 +1,6 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
+using Unity.Collections.LowLevel.Unsafe;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
@@ -20,8 +21,9 @@ namespace Scellecs.Morpeh.EntityConverter
             var index = instanceIdToIndex[instanceId];
             var value = ((long)(index & 0xFFFFFFFF) << 32) | ((long)(1 & 0xFFFF) << 16);
             var ent = default(Entity);
-            var entPtr = (long*)&ent;
-            *entPtr = value;
+            var ptr = (long*)&ent;
+            UnsafeUtility.MemSet(ptr, 0, sizeof(long));
+            *ptr = value;
 
             return ent;
         }

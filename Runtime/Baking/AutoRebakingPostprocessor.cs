@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-using Scellecs.Morpeh.EntityConverter.Logger;
+using Scellecs.Morpeh.EntityConverter.Logs;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -64,13 +64,19 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private void AddRebakePrefab(string prefabGUID)
         {
-            prefabGUIDs.Add(prefabGUID);
-            sceneGUIDs.AddRange(sceneDependencyService.GetSceneDependenciesForPrefab(prefabGUID));
+            if (settingsService.TryGetBakingFlags(out var flags) && (flags & BakingFlags.BakePrefabs) != 0)
+            {
+                prefabGUIDs.Add(prefabGUID);
+                sceneGUIDs.AddRange(sceneDependencyService.GetSceneDependenciesForPrefab(prefabGUID));
+            }
         }
 
         private void AddRebakeScene(string sceneGUID)
         {
-            sceneGUIDs.Add(sceneGUID);
+            if (settingsService.TryGetBakingFlags(out var flags) && (flags & BakingFlags.BakeScenes) != 0)
+            {
+                sceneGUIDs.Add(sceneGUID);
+            }
         }
 
         private void ExecuteRebake()

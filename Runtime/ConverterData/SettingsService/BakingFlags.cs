@@ -7,8 +7,8 @@ namespace Scellecs.Morpeh.EntityConverter
     internal enum BakingFlags : byte
     { 
         BakeOnDomainReload = 1 << 1,
-        BakeOnBuild = 1 << 2,
-        BakeOnEnterPlaymode = 1 << 3
+        BakePrefabs = 1 << 2,
+        BakeScenes = 1 << 3,
     }
 }
 #endif

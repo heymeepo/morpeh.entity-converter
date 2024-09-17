@@ -27,16 +27,16 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
             //if (repository == null)
             //{
-            //    CreateConverterDataAssetCreationButton();
-            //    return;
+                CreateConverterDataAssetCreationButton();
+                return;
             //}
 
-            LoadStyleSheet();
-            CreateScenesGUI();
-            CreateOptionsGUI();
+            //LoadStyleSheet();
+            //CreateScenesGUI();
+            //CreateOptionsGUI();
 
-            rootVisualElement.Add(scenesRoot);
-            rootVisualElement.Add(optionsRoot);
+            //rootVisualElement.Add(scenesRoot);
+            //rootVisualElement.Add(optionsRoot);
 
             //var button = new Button(() => entityBakingService.BakeScene(AssetDatabase.AssetPathToGUID(EditorSceneManager.GetActiveScene().path)));
             //button.text = "Bake Active Scene";

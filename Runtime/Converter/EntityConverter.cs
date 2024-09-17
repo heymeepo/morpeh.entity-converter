@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Scellecs.Morpeh.EntityConverter.Logs;
 using System.Collections.Generic;
 using UnityEditor;
 
@@ -18,11 +19,11 @@ namespace Scellecs.Morpeh.EntityConverter
         private BakingProcessor bakingProcessor;
         private AuthoringBakingService bakingService;
 
-        private Scellecs.Morpeh.EntityConverter.Logger.Logger logger;
+        private Logger logger;
 
         public void Initialize()
         {
-            logger = new Scellecs.Morpeh.EntityConverter.Logger.Logger();
+            logger = new Logger();
             dataProvider = new EntityConverterDataProvider();
             settingsService = new SettingsService(dataProvider, logger);
             authoringDataService = new AuthoringDataService(dataProvider, logger);
@@ -39,6 +40,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 new ValidateAuthoringDataPostprocessor(authoringDataService),
                 new SceneDependencyTrackerPostprocessor(sceneTracker),
                 new AutoRebakingPostprocessor(bakingService, settingsService, sceneDependencyService, logger),
+                new PlaymodePostprocessor(authoringDataService, settingsService, logger)
             };
 
             EditorApplication.update += Update;

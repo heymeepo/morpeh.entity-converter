@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System;
 
-namespace Scellecs.Morpeh.EntityConverter.Logger
+namespace Scellecs.Morpeh.EntityConverter.Logs
 {
     [Flags]
     internal enum LogDepthFlags

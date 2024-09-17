@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-using Scellecs.Morpeh.EntityConverter.Logger;
+using Scellecs.Morpeh.EntityConverter.Logs;
 using Scellecs.Morpeh.EntityConverter.Utilities;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -129,12 +129,12 @@ namespace Scellecs.Morpeh.EntityConverter
 
                     bakingProcessor.ExecuteSceneBake(info);
 
+                    logger.Log($"{nameof(AuthoringBakingService)}: Scene baked {scene.name}.", LogDepthFlags.Info);
+
                     if (openScene)
                     {
                         EditorSceneManager.CloseScene(scene, true);
                     }
-
-                    logger.Log($"{nameof(AuthoringBakingService)}: Scene baked {scene.name}.", LogDepthFlags.Info);
                 }
                 catch (System.Exception e)
                 {

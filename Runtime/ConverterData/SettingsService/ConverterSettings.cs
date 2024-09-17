@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-using Scellecs.Morpeh.EntityConverter.Logger;
+using Scellecs.Morpeh.EntityConverter.Logs;
 using System;
 
 namespace Scellecs.Morpeh.EntityConverter

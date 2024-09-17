@@ -1,4 +1,5 @@
 ﻿#if UNITY_EDITOR
+using Scellecs.Morpeh.EntityConverter.Utilities;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 namespace Scellecs.Morpeh.EntityConverter
 {
-    using ILogger = Scellecs.Morpeh.EntityConverter.Logger.ILogger;
+    using ILogger = Scellecs.Morpeh.EntityConverter.Logs.ILogger;
 
     internal sealed class BakingProcessor
     {
@@ -42,7 +43,7 @@ namespace Scellecs.Morpeh.EntityConverter
                 instances = new List<ConvertToEntity>()
             };
 
-            var roots = GetAllTopmostConvertersInScene(sceneBakingInfo.scene);
+            var roots = Utilities.SceneUtility.GetAllTopmostConvertersInScene(sceneBakingInfo.scene);
             int currentIndex = 0;
 
             foreach (var root in roots)
@@ -142,49 +143,6 @@ namespace Scellecs.Morpeh.EntityConverter
                     TraverseHierarchy(childComponent, ref lookup, ref currentIndex, currentInstanceIndex, isPrefab);
                 }
             }
-        }
-
-        private static IEnumerable<ConvertToEntity> GetAllTopmostConvertersInScene(Scene scene)
-        {
-            var rootObjects = scene.GetRootGameObjects();
-
-            List<ConvertToEntity> topMostEntities = new List<ConvertToEntity>();
-
-            foreach (var root in rootObjects)
-            {
-                var topEntitiesInHierarchy = GetTopmostConvertersInHierarchy(root);
-                topMostEntities.AddRange(topEntitiesInHierarchy);
-            }
-
-            return topMostEntities;
-        }
-
-        private static IEnumerable<ConvertToEntity> GetTopmostConvertersInHierarchy(GameObject root)
-        {
-            var result = new List<ConvertToEntity>();
-            TraverseHierarchy(root);
-
-            void TraverseHierarchy(GameObject currentObject)
-            {
-                var conveter = currentObject.GetComponent<ConvertToEntity>();
-
-                if (conveter != null)
-                {
-                    if (conveter.excludeFromScene == false)
-                    {
-                        result.Add(conveter);
-                    }
-                }
-                else
-                {
-                    foreach (Transform child in currentObject.transform)
-                    {
-                        TraverseHierarchy(child.gameObject);
-                    }
-                }
-            }
-
-            return result;
         }
     }
 }

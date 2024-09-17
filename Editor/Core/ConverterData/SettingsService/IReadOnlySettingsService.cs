@@ -5,8 +5,12 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Settings
 {
     internal interface IReadOnlySettingsService
     {
-        public bool TryGetBakingFlags(out BakingFlags flags);
+        public bool GetBakingFlagEnabled(BakingFlags flag);
 
-        public bool TryGetLogDepthFlags(out LogDepthFlags flags);
+        public BakingFlags GetBakingFlags();
+
+        public bool GetLogFlagEnabled(LogFlags flag);
+
+        public LogFlags GetLogFlags();
     }
 }

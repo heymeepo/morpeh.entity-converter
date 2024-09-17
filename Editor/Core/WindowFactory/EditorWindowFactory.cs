@@ -8,7 +8,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
     internal sealed class EditorWindowFactory
     {
-        private static EditorWindowFactory instance;
+        public static EditorWindowFactory Instance { get; private set; }
 
         private IEntityConverterDataNotifier dataNotifier;
         private IReadOnlyAuthoringDataService authoringDataService;
@@ -23,24 +23,22 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             IAuthoringBakingService bakingService,
             SettingsService settingsService)
         {
-            instance ??= new EditorWindowFactory()
+            Instance ??= new EditorWindowFactory()
             {
                 dataNotifier = dataNotifier,
                 authoringDataService = authoringDataService,
                 bakingService = bakingService,
                 settingsService = settingsService
             };
-            return instance;
+
+            return Instance;
         }
 
-        [MenuItem("Tools/Morpeh/Entity Converter")]
-        private static void CreateEntityConverterWindow()
+        public static void InitializeEntityConverterWindow(EntityConverterWindow window)
         {
-            if (instance != null)
+            if (Instance != null)
             {
-                EntityConverterWindow window = EditorWindow.GetWindow<EntityConverterWindow>();
-                window.titleContent = new GUIContent("Entity Converter");
-                window.Initialize(instance.dataNotifier, instance.authoringDataService, instance.bakingService, instance.settingsService);
+                window.Initialize(Instance.dataNotifier, Instance.authoringDataService, Instance.bakingService, Instance.settingsService);
             }
         }
     }

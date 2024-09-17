@@ -8,10 +8,6 @@
     padding-right: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
-    border-left-width: 0;
-    border-right-width: 0;
-    border-top-width: 0;
-    border-bottom-width: 0;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     border-top-right-radius: 5px;
@@ -30,34 +26,16 @@
     align-items: stretch;
     justify-content: space-around;
     align-self: stretch;
-    flex-shrink: 0;
 }
 
 .scene-object-field {
     align-self: stretch;
-    flex-grow: 0;
-    flex-shrink: 0;
     flex-direction: row;
     width: 50%;
     overflow: visible;
     visibility: visible;
     display: flex;
     opacity: 1;
-}
-
-.scene-baked-data-field {
-    align-self: stretch;
-    flex-grow: 0;
-    flex-shrink: 0;
-    align-items: stretch;
-    justify-content: flex-start;
-    flex-direction: row-reverse;
-    flex-wrap: nowrap;
-    width: 50%;
-    opacity: 1;
-    display: flex;
-    visibility: visible;
-    overflow: visible;
 }
 
 .options-foldout {
@@ -72,6 +50,42 @@
     margin-bottom: 3px;
     padding-left: 2px;
     padding-right: 2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.scene-baked-data-field {
+    align-self: stretch;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    width: 50%;
+    opacity: 1;
+    display: flex;
+    visibility: visible;
+    overflow: visible;
+    -unity-text-align: upper-left;
+}
+
+.scene-baked-data-button {
+    flex-direction: row-reverse;
+    align-self: stretch;
+    width: 50%;
+    -unity-text-align: upper-center;
+    text-overflow: ellipsis;
+}
+
+.options-suboptions-header {
+    -unity-font-style: bold;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 3px;
+    padding-bottom: 5px;
+}
+
+.options-suboptions-container {
+    padding-left: 2px;
     padding-top: 2px;
     padding-bottom: 2px;
 }

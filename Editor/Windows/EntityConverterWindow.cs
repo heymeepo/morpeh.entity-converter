@@ -1,17 +1,19 @@
 ﻿using Scellecs.Morpeh.EntityConverter.Editor.Baking;
-using Scellecs.Morpeh.EntityConverter.Editor.Settings;
+using Scellecs.Morpeh.EntityConverter.Logs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
+using UnityEditor.PackageManager.UI;
 using UnityEditor.UIElements;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.UIElements;
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
 {
     using SettingsService = Scellecs.Morpeh.EntityConverter.Editor.Settings.SettingsService;
 
-    public class EntityConverterWindow : EditorWindow
+    public sealed class EntityConverterWindow : EditorWindow
     {
         private IEntityConverterDataNotifier dataNotifier;
         private IReadOnlyAuthoringDataService authoringDataService;
@@ -20,8 +22,12 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         private StyleSheet baseStyleSheet;
 
-        private VisualElement scenesRoot;
-        private VisualElement optionsRoot;
+        [MenuItem("Tools/Morpeh/Entity Converter")]
+        public static void ShowWindow()
+        {
+            EntityConverterWindow window = GetWindow<EntityConverterWindow>();
+            window.titleContent = new GUIContent("Entity Converter");
+        }
 
         internal void Initialize(
             IEntityConverterDataNotifier dataNotifier,
@@ -33,6 +39,15 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             this.settingsService = settingsService;
             this.authoringDataService = authoringDataService;
             this.bakingService = bakingService;
+            dataNotifier.DataChanged += ImplCreateGUI;
+        }
+
+        public void CreateGUI()
+        {
+            if (dataNotifier == null)
+            {
+                EditorWindowFactory.InitializeEntityConverterWindow(this);
+            }
 
             ImplCreateGUI();
         }
@@ -41,18 +56,20 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             rootVisualElement.Clear();
 
-            //if (repository == null)
-            //{
-                CreateConverterDataAssetCreationButton();
+            if (dataNotifier.IsValid() == false)
+            {
+                var creationButton = CreateConverterDataAssetCreationButton();
+                rootVisualElement.Add(creationButton);
                 return;
-            //}
+            }
 
-            //LoadStyleSheet();
-            //CreateScenesGUI();
-            //CreateOptionsGUI();
+            LoadStyleSheet();
 
-            //rootVisualElement.Add(scenesRoot);
-            //rootVisualElement.Add(optionsRoot);
+            var scenesRoot = CreateScenesGUI();
+            var optionsRoot = CreateOptionsGUI();
+
+            rootVisualElement.Add(scenesRoot);
+            rootVisualElement.Add(optionsRoot);
 
             //var button = new Button(() => entityBakingService.BakeScene(AssetDatabase.AssetPathToGUID(EditorSceneManager.GetActiveScene().path)));
             //button.text = "Bake Active Scene";
@@ -67,9 +84,12 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             //rootVisualElement.Add(button4);
         }
 
-        //private void OnEnable() => Initialize();
-
-        //private void OnDisable() => repository.RepositoryDataChanged -= CreateGUI;
+        private VisualElement CreateConverterDataAssetCreationButton()
+        {
+            var creationButton = new Button(() => EntityConverterUtility.CreateDataAssetInstance());
+            creationButton.text = "Create EntityConverterAsset";
+            return creationButton;
+        }
 
         private void LoadStyleSheet()
         {
@@ -77,119 +97,163 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             rootVisualElement.styleSheets.Add(baseStyleSheet);
         }
 
-        private void CreateScenesGUI()
+        private VisualElement CreateScenesGUI()
         {
-            //scenesRoot = new VisualElement();
+            var scenesRoot = new VisualElement();
 
-            //var scenesFoldout = new Foldout();
-            //scenesFoldout.AddToClassList("scenes-foldout");
-            //scenesFoldout.text = "Scenes";
-            //scenesRoot.Add(scenesFoldout);
+            var scenesFoldout = new Foldout();
+            scenesFoldout.AddToClassList("scenes-foldout");
+            scenesFoldout.text = "Scenes";
+            scenesRoot.Add(scenesFoldout);
 
-            //var scenes = repository.GetSceneGuids();
+            var scenes = authoringDataService.GetSceneGuids();
 
-            //foreach (var sceneGuid in scenes)
-            //{
-            //    var pair = new VisualElement();
-            //    pair.AddToClassList("scene-scene-data-pair");
+            foreach (var sceneGuid in scenes)
+            {
+                var pair = new VisualElement();
+                pair.AddToClassList("scene-scene-data-pair");
 
-            //    var scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
-            //    var sceneField = new ObjectField();
-            //    sceneField.AddToClassList("scene-object-field");
-            //    sceneField.objectType = typeof(SceneAsset);
-            //    sceneField.value = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
-            //    sceneField.SetEnabled(false);
-            //    pair.Add(sceneField);
+                var scenePath = AssetDatabase.GUIDToAssetPath(sceneGuid);
+                var sceneField = new ObjectField();
+                sceneField.AddToClassList("scene-object-field");
+                sceneField.objectType = typeof(SceneAsset);
+                sceneField.value = AssetDatabase.LoadAssetAtPath<SceneAsset>(scenePath);
+                sceneField.SetEnabled(false);
+                pair.Add(sceneField);
 
-            //    if (repository.TryGetSceneBakedDataAsset(sceneGuid, out var sceneBakedData))
-            //    {
-            //        var bakedDataField = new ObjectField();
-            //        bakedDataField.AddToClassList("scene-baked-data-field");
-            //        bakedDataField.objectType = typeof(SceneBakedDataAsset);
-            //        bakedDataField.value = sceneBakedData;
-            //        bakedDataField.SetEnabled(false);
-            //        pair.Add(bakedDataField);
-            //    }
-            //    else
-            //    {
-            //        var creationButton = new Button(() =>
-            //        {
-            //            if (repository.IsValid)
-            //            {
-            //                var asset = EntityConverterUtility.CreateSceneBakedDataAsset(scenePath);
-            //            }
-            //        });
-            //        creationButton.AddToClassList("scene-baked-data-field");
-            //        creationButton.text = "Create Scene Baked Data Asset";
-            //        pair.Add(creationButton);
-            //    }
+                if (authoringDataService.TryGetSceneBakedDataAsset(sceneGuid, out var sceneBakedData))
+                {
+                    var bakedDataField = new ObjectField();
+                    bakedDataField.AddToClassList("scene-baked-data-field");
+                    bakedDataField.objectType = typeof(SceneBakedDataAsset);
+                    bakedDataField.value = sceneBakedData;
+                    bakedDataField.SetEnabled(false);
+                    pair.Add(bakedDataField);
+                }
+                else
+                {
+                    var creationButton = new Button(() =>
+                    {
+                        if (dataNotifier.IsValid())
+                        {
+                            var asset = EntityConverterUtility.CreateSceneBakedDataAsset(scenePath);
+                        }
+                    });
+                    creationButton.AddToClassList("scene-baked-data-button");
+                    creationButton.text = "Create SceneBakedDataAsset";
+                    pair.Add(creationButton);
+                }
 
-            //    scenesFoldout.Add(pair);
-            //}
+                scenesFoldout.Add(pair);
+            }
+
+            return scenesRoot;
         }
 
-        private void CreateOptionsGUI()
+        private VisualElement CreateOptionsGUI()
         {
-            //optionsRoot = new VisualElement();
+            var optionsRoot = new VisualElement();
+            var optionsFoldout = new Foldout();
+            optionsFoldout.AddToClassList("options-foldout");
+            optionsFoldout.text = "Options";
+            optionsRoot.Add(optionsFoldout);
 
-            //var optionsFoldout = new Foldout();
-            //optionsFoldout.AddToClassList("options-foldout");
-            //optionsFoldout.text = "Options";
-            //optionsRoot.Add(optionsFoldout);
+            var bakingOptionsRoot = CreateBakingOptionsGUI();
+            var logsOptionsRoot = CreateLogsOptionsGUI();
 
-            //var bakingFlagsProperty = converterDataSerializedObject.FindProperty(nameof(EntityConverter.bakingFlags));
+            optionsFoldout.Add(bakingOptionsRoot);
+            optionsFoldout.Add(logsOptionsRoot);
 
-            //var rebakeOnDomainReloadToggle = new Toggle();
-            //rebakeOnDomainReloadToggle.text = "Perform Full Rebake On Domain Reload";
-            //rebakeOnDomainReloadToggle.value = ((EntityConverterBakingFlags)bakingFlagsProperty.intValue & EntityConverterBakingFlags.BakeOnDomainReload) != 0;
-            //rebakeOnDomainReloadToggle.RegisterValueChangedCallback(v =>
-            //{
-            //    if (converterData != null)
-            //    {
-            //        bakingFlagsProperty.intValue = SetFlag(bakingFlagsProperty.intValue, EntityConverterBakingFlags.BakeOnDomainReload, v.newValue);
-            //        converterDataSerializedObject.ApplyModifiedProperties();
-            //    }
-            //});
-            //optionsFoldout.Add(rebakeOnDomainReloadToggle);
-
-            //var rebakeOnEnterPlaymodeToggle = new Toggle();
-            //rebakeOnEnterPlaymodeToggle.text = "Perform Full Rebake On Enter Playmode";
-            //rebakeOnEnterPlaymodeToggle.value = ((EntityConverterBakingFlags)bakingFlagsProperty.intValue & EntityConverterBakingFlags.BakeOnEnterPlaymode) != 0;
-            //rebakeOnEnterPlaymodeToggle.RegisterValueChangedCallback(v =>
-            //{
-            //    if (converterData != null)
-            //    {
-            //        bakingFlagsProperty.intValue = SetFlag(bakingFlagsProperty.intValue, EntityConverterBakingFlags.BakeOnEnterPlaymode, v.newValue);
-            //        converterDataSerializedObject.ApplyModifiedProperties();
-            //    }
-            //});
-            //optionsFoldout.Add(rebakeOnEnterPlaymodeToggle);
-
-            //var rebakeOnBuildToggle = new Toggle();
-            //rebakeOnBuildToggle.text = "Perform Full Rebake On Build";
-            //rebakeOnBuildToggle.value = ((EntityConverterBakingFlags)bakingFlagsProperty.intValue & EntityConverterBakingFlags.BakeOnBuild) != 0;
-            //rebakeOnBuildToggle.RegisterValueChangedCallback(v =>
-            //{
-            //    if (converterData != null)
-            //    {
-            //        bakingFlagsProperty.intValue = SetFlag(bakingFlagsProperty.intValue, EntityConverterBakingFlags.BakeOnBuild, v.newValue);
-            //        converterDataSerializedObject.ApplyModifiedProperties();
-            //    }
-            //});
-            //optionsFoldout.Add(rebakeOnBuildToggle);
+            return optionsRoot;
         }
 
-        private void CreateConverterDataAssetCreationButton()
+        private VisualElement CreateBakingOptionsGUI()
         {
-            var createButton = new Button(() => EntityConverterUtility.CreateDataAssetInstance());
-            createButton.text = "Create Entity Converter Asset";
-            rootVisualElement.Add(createButton);
+            var optionsRoot = new VisualElement();
+            optionsRoot.AddToClassList("options-suboptions-container");
+
+            var bakingOptionsHeader = new Label();
+            bakingOptionsHeader.AddToClassList("options-suboptions-header");
+            bakingOptionsHeader.text = "Baking";
+
+            var rebakeOnDomainReloadToggle = CreateBakingFlagsToggle("Force Global Rebake On Domain Reload", BakingFlags.BakeOnDomainReload);
+            var rebakePrefabsToggle = CreateBakingFlagsToggle("Auto Rebake Prefabs", BakingFlags.BakePrefabs);
+            var rebakeScenesToggle = CreateBakingFlagsToggle("Auto Rebake Scenes", BakingFlags.BakeScenes);
+
+            optionsRoot.Add(bakingOptionsHeader);
+            optionsRoot.Add(rebakeOnDomainReloadToggle);
+            optionsRoot.Add(rebakePrefabsToggle);
+            optionsRoot.Add(rebakeScenesToggle);
+
+            Toggle CreateBakingFlagsToggle(string toggleText, BakingFlags flag)
+            {
+                var bakingFlagToggle = new Toggle();
+                bakingFlagToggle.text = toggleText;
+                bakingFlagToggle.value = settingsService.GetBakingFlagEnabled(flag);
+                bakingFlagToggle.RegisterValueChangedCallback(v =>
+                {
+                    if (dataNotifier.IsValid())
+                    {
+                        settingsService.SetBakingFlagState(flag, v.newValue);
+                    }
+                });
+
+                return bakingFlagToggle;
+            }
+
+            return optionsRoot;
         }
 
-        private static int SetFlag(int intFlags, BakingFlags flag, bool value)
+        private VisualElement CreateLogsOptionsGUI()
         {
-            var flags = (BakingFlags)intFlags;
-            return (int)(value ? flags | flag : flags & ~flag);
+            var optionsRoot = new VisualElement();
+            optionsRoot.AddToClassList("options-suboptions-container");
+
+            var logsOptionsHeader = new Label();
+            logsOptionsHeader.AddToClassList("options-suboptions-header");
+            logsOptionsHeader.text = "Logs";
+
+            var internalDebugToggle = CreateLogFlagsToggle("Internal Debug", LogFlags.InternalDebug, true);
+            var debugToggle = CreateLogFlagsToggle("Debug", LogFlags.Debug, true);
+            var infoToggle = CreateLogFlagsToggle("Info", LogFlags.Info, true);
+            var regular = CreateLogFlagsToggle("Regular", LogFlags.Regular, false);
+            var fatalToggle = CreateLogFlagsToggle("Fatal", LogFlags.Fatal, false);
+
+            optionsRoot.Add(logsOptionsHeader);
+            optionsRoot.Add(internalDebugToggle);
+            optionsRoot.Add(debugToggle);
+            optionsRoot.Add(infoToggle);
+            optionsRoot.Add(infoToggle);
+            optionsRoot.Add(regular);
+            optionsRoot.Add(fatalToggle);
+
+            Toggle CreateLogFlagsToggle(string toggleText, LogFlags flag, bool setEnabled)
+            {
+                var bakingFlagToggle = new Toggle();
+                bakingFlagToggle.text = toggleText;
+                bakingFlagToggle.value = settingsService.GetLogFlagEnabled(flag);
+                bakingFlagToggle.SetEnabled(setEnabled);
+                bakingFlagToggle.RegisterValueChangedCallback(v =>
+                {
+                    if (dataNotifier.IsValid())
+                    {
+                        settingsService.SetLogFlagState(flag, v.newValue);
+                    }
+                });
+
+                return bakingFlagToggle;
+            }
+
+
+            return optionsRoot;
+        }
+
+        private void OnDestroy()
+        {
+            if (dataNotifier != null)
+            {
+                dataNotifier.DataChanged -= ImplCreateGUI;
+            }
         }
     }
 }

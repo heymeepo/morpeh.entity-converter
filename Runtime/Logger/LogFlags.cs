@@ -4,7 +4,7 @@ using System;
 namespace Scellecs.Morpeh.EntityConverter.Logs
 {
     [Flags]
-    internal enum LogDepthFlags
+    internal enum LogFlags
     { 
         InternalDebug = 1 << 1,
         Debug = 1 << 2,

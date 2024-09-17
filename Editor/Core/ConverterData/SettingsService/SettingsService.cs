@@ -18,78 +18,108 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Settings
             this.logger = logger;
         }
 
-        public void Initialize()
+        public void Reload()
         {
             if (dataProvider.TryGetData(out var data))
             {
                 var settings = data.ConverterSettings;
-                logger.SetLogFlags(settings.logDepthFlags);
-            }
-            else
-            {
-                logger.LogInitializationFailedDataAssetNotLoaded<SettingsService>();
+                logger.SetLogFlags(settings.logFlags);
             }
         }
 
-        public bool TryGetLogDepthFlags(out LogDepthFlags flags)
+        public LogFlags GetLogFlags()
         {
             if (dataProvider.TryGetData(out var data))
             {
-                flags = data.ConverterSettings.logDepthFlags;
-                return true;
+                return data.ConverterSettings.logFlags | Logger.DEFAULT_LOG_FLAGS;
             }
 
-            flags = default;
-            return false;
+            return Logger.DEFAULT_LOG_FLAGS;
         }
 
-        public bool TryGetBakingFlags(out BakingFlags flags)
+        public bool GetLogFlagEnabled(LogFlags flag)
+        {
+            if (dataProvider.TryGetData(out var data))
+            {
+                return ((data.ConverterSettings.logFlags | Logger.DEFAULT_LOG_FLAGS) & flag) != 0;
+            }
+
+            return (Logger.DEFAULT_LOG_FLAGS & flag) != 0;
+        }
+
+        public void SetLogFlagState(LogFlags flag, bool state)
+        {
+            if (dataProvider.TryGetData(out var data, true))
+            {
+                var flags = data.ConverterSettings.logFlags;
+                data.ConverterSettings.logFlags = state ? flags | flag : flags & ~flag;
+                logger.SetLogFlags(data.ConverterSettings.logFlags);
+            }
+        }
+
+        public void SetLogFlags(LogFlags flags)
+        {
+            if (dataProvider.TryGetData(out var data, true))
+            {
+                data.ConverterSettings.logFlags = flags;
+                logger.SetLogFlags(flags);
+            }
+        }
+
+        public BakingFlags GetBakingFlags()
         {
             var temp = SessionState.GetInt(TEMP_BAKING_FLAGS_KEY, int.MaxValue);
 
             if(temp != int.MaxValue) 
             {
-                flags = (BakingFlags)(byte)temp;
-                return true;
+                return (BakingFlags)(byte)temp;
             }
 
             if (dataProvider.TryGetData(out var data))
             {
-                flags = data.ConverterSettings.bakingFlags;
-                return true;
+                return data.ConverterSettings.bakingFlags;
             }
 
-            flags = default;
-            return false;
+            return 0;
         }
 
-        public void SetLogDepthFlags(LogDepthFlags flags)
+        public bool GetBakingFlagEnabled(BakingFlags flag)
         {
-            if (dataProvider.TryGetData(out var data, true))
+            if (dataProvider.TryGetData(out var data))
             {
-                data.ConverterSettings.logDepthFlags = flags;
-                logger.SetLogFlags(flags);
+                return (data.ConverterSettings.bakingFlags & flag) != 0;
             }
+
+            return false;
         }
 
         public void SetBakingFlags(BakingFlags flags)
         {
-            if (dataProvider.TryGetData(out var data))
+            if (dataProvider.TryGetData(out var data, true))
             {
                 data.ConverterSettings.bakingFlags = flags;
+            }
+        }
+
+        public void SetBakingFlagState(BakingFlags flag, bool state)
+        {
+            if (dataProvider.TryGetData(out var data, true))
+            {
+                var flags = data.ConverterSettings.bakingFlags;
+                data.ConverterSettings.bakingFlags = state ? flags | flag : flags & ~flag;
             }
         }
 
         public void SetTemporaryBakingFlags(BakingFlags flags)
         {
             SessionState.SetInt(TEMP_BAKING_FLAGS_KEY, (int)flags);
-            logger.Log($"Temp BakingFlags were set. Value: {Convert.ToString((byte)flags, 2).PadLeft(8, '0')} ", LogDepthFlags.InternalDebug);
+            logger.Log($"Temp BakingFlags were set. Value: {Convert.ToString((byte)flags, 2).PadLeft(8, '0')} ", LogFlags.InternalDebug);
         }
 
         public void ClearTemporaryBakingFlags()
         {
             SessionState.SetInt(TEMP_BAKING_FLAGS_KEY, int.MaxValue);
-            logger.Log("Temp BakingFlags were cleared.", LogDepthFlags.InternalDebug);
+            logger.Log("Temp BakingFlags were cleared.", LogFlags.InternalDebug);
         }
     }
 }

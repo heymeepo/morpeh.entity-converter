@@ -3,11 +3,11 @@ namespace Scellecs.Morpeh.EntityConverter.Logs
 {
     internal interface ILogger
     {
-        public void Log(string message, LogDepthFlags depth);
+        public void Log(string message, LogFlags depth);
 
-        public void LogWarning(string message, LogDepthFlags depth);
+        public void LogWarning(string message, LogFlags depth);
 
-        public void LogError(string message, LogDepthFlags depth);
+        public void LogError(string message, LogFlags depth);
 
         public void LogInitializationSuccess<T>();
 

@@ -113,7 +113,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             if (string.IsNullOrEmpty(prefabGUID) || string.IsNullOrEmpty(sceneGUID))
             {
-                logger.LogWarning($"Unable to ADD the prefab as a scene dependency because an invalid GUID was received. Scene GUID: {sceneGUID}. Prefab GUID: {prefabGUID}.", LogDepthFlags.InternalDebug);
+                logger.LogWarning($"Unable to ADD the prefab as a scene dependency because an invalid GUID was received. Scene GUID: {sceneGUID}. Prefab GUID: {prefabGUID}.", LogFlags.InternalDebug);
                 return;
             }
 
@@ -147,7 +147,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             if (string.IsNullOrEmpty(prefabGUID) || string.IsNullOrEmpty(sceneGUID))
             {
-                logger.LogWarning($"Unable to REMOVE the prefab as a scene dependency because an invalid GUID was received. Scene GUID: {sceneGUID}. Prefab GUID: {prefabGUID}.", LogDepthFlags.InternalDebug);
+                logger.LogWarning($"Unable to REMOVE the prefab as a scene dependency because an invalid GUID was received. Scene GUID: {sceneGUID}. Prefab GUID: {prefabGUID}.", LogFlags.InternalDebug);
                 return;
             }
 

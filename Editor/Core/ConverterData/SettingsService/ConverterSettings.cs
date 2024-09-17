@@ -8,6 +8,6 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Settings
     internal sealed class ConverterSettings
     { 
         public BakingFlags bakingFlags;
-        public LogDepthFlags logDepthFlags;
+        public LogFlags logFlags;
     }
 }

@@ -4,9 +4,13 @@
         <ui:Foldout text="Foldout" class="scenes-foldout">
             <ui:VisualElement class="scene-scene-baked-data-pair scene-scene-data-pair">
                 <uie:ObjectField class="scene-object-field" />
-                <ui:Button display-tooltip-when-elided="true" enable-rich-text="true" class="scene-baked-data-field" />
+                <ui:Button display-tooltip-when-elided="true" enable-rich-text="true" class="scene-baked-data-button" />
             </ui:VisualElement>
         </ui:Foldout>
-        <ui:Foldout text="Foldout" class="options-foldout" />
+        <ui:Foldout text="Foldout" class="options-foldout">
+            <ui:VisualElement class="options-suboptions-container" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+                <ui:Label tabindex="-1" text="Baking Settings" display-tooltip-when-elided="true" class="options-suboptions-header" />
+            </ui:VisualElement>
+        </ui:Foldout>
     </ui:VisualElement>
 </ui:UXML>

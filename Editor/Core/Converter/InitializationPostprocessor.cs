@@ -39,6 +39,8 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             if (context.DidDomainReload)
             {
                 dataProvider.Reload();
+                dataProvider.SetDirty();
+                settingsService.Reload();
             }
 
             if (dataProvider.IsValid() == false)
@@ -56,13 +58,14 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             }
         }
 
+
         private void InitializeServices()
         {
             dataProvider.Reload();
+            settingsService.Reload();
 
             if (dataProvider.IsValid())
             {
-                settingsService.Initialize();
                 authoringDataService.Initialize();
                 sceneDependencyService.Intialize();
                 logger.LogInitializationSuccess<InitializationPostprocessor>();

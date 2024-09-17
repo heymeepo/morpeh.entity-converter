@@ -96,7 +96,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             EditorSceneManager.MarkSceneDirty(scene);
             EditorSceneManager.SaveScene(scene);
 
-            logger.Log($"{nameof(PlaymodePostprocessor)}: Authorings set enabled {state}. At scene {scene.name}.", LogDepthFlags.InternalDebug);
+            logger.Log($"{nameof(PlaymodePostprocessor)}: Authorings set enabled {state}. At scene {scene.name}.", LogFlags.InternalDebug);
 
             if (openScene)
             {

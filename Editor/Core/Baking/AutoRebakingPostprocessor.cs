@@ -18,9 +18,9 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Baking
         public List<string> prefabGUIDs;
 
         public AutoRebakingPostprocessor(
-            AuthoringBakingService bakingService, 
+            AuthoringBakingService bakingService,
             IReadOnlySettingsService settingsService,
-            IReadOnlySceneDependencyService sceneDependencyService, 
+            IReadOnlySceneDependencyService sceneDependencyService,
             ILogger logger)
         {
             this.bakingService = bakingService;
@@ -36,7 +36,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Baking
         {
             if (context.DidDomainReload)
             {
-                if (settingsService.TryGetBakingFlags(out var flags) && (flags & BakingFlags.BakeOnDomainReload) != 0)
+                if (settingsService.GetBakingFlagEnabled(BakingFlags.BakeOnDomainReload))
                 {
                     bakingService.ForceGlobalBake();
                     return;
@@ -65,19 +65,19 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Baking
 
         private void AddRebakePrefab(string prefabGUID)
         {
-            //if (settingsService.TryGetBakingFlags(out var flags) && (flags & BakingFlags.BakePrefabs) != 0)
-            //{
+            if (settingsService.GetBakingFlagEnabled(BakingFlags.BakePrefabs))
+            {
                 prefabGUIDs.Add(prefabGUID);
                 sceneGUIDs.AddRange(sceneDependencyService.GetSceneDependenciesForPrefab(prefabGUID));
-            //}
+            }
         }
 
         private void AddRebakeScene(string sceneGUID)
         {
-            //if (settingsService.TryGetBakingFlags(out var flags) && (flags & BakingFlags.BakeScenes) != 0)
-            //{
+            if (settingsService.GetBakingFlagEnabled(BakingFlags.BakeScenes))
+            {
                 sceneGUIDs.Add(sceneGUID);
-            //}
+            }
         }
 
         private void ExecuteRebake()
@@ -86,24 +86,33 @@ namespace Scellecs.Morpeh.EntityConverter.Editor.Baking
             {
                 var sceneGUIDs = this.sceneGUIDs.Distinct();
 
+                int prefabsBaked = 0;
+                int scenesBaked = 0;
+
                 bakingService.SavePreBakingEditorState();
                 bakingService.SaveDirtyBeforeBaking();
 
                 foreach (var prefabGUID in prefabGUIDs)
                 {
-                    bakingService.BakePrefabInternal(prefabGUID);
+                    if (bakingService.BakePrefabInternal(prefabGUID))
+                    {
+                        prefabsBaked++;
+                    }
                 }
 
                 foreach (var sceneGUID in sceneGUIDs)
                 {
-                    bakingService.BakeSceneInternal(sceneGUID);
+                    if (bakingService.BakeSceneInternal(sceneGUID))
+                    {
+                        scenesBaked++;
+                    }
                 }
 
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
                 bakingService.RestorePreBakingEditorState();
 
-                logger.Log($"Total auto rebaked: {prefabGUIDs.Count} prefabs, {sceneGUIDs.Count()} scenes", LogDepthFlags.Info);
+                logger.Log($"Total auto rebaked: {prefabsBaked} prefabs, {scenesBaked} scenes", LogFlags.Info);
             }
         }
     }

@@ -51,8 +51,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             EditorApplication.update += Update;
         }
 
-        //This method is called after OnPostprocessAllAssets.
-        //It's necessary because direct calls from OnPostprocessAllAssets cause unpredictable bugs.
+        //This method necessary because direct calls from OnPostprocessAllAssets cause unpredictable bugs.
         private void Update()
         {
             if (assetPostprocessor.TryGetContext(out var context))
@@ -65,7 +64,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
             if (dataProvider.IsValid())
             {
-                dataProvider.NotifyChangedIfDirty();
+                dataProvider.SaveAndNotifyChangedIfDirty();
             }
         }
     }

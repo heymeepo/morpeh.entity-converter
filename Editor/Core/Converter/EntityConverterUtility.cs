@@ -1,4 +1,5 @@
-﻿using Scellecs.Morpeh.EntityConverter.Utilities;
+﻿using Scellecs.Morpeh.EntityConverter.Editor.Baking;
+using Scellecs.Morpeh.EntityConverter.Utilities;
 using UnityEditor;
 using UnityEngine;
 
@@ -13,8 +14,8 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             AssetDatabaseUtility.CreateDirectoryFoldersForPath(DATA_ASSET_PATH, false);
             var converterData = ScriptableObject.CreateInstance<EntityConverterDataAsset>();
             AssetDatabase.CreateAsset(converterData, DATA_ASSET_PATH);
+            converterData.ConverterSettings.bakingFlags = (BakingFlags)0xFF;
             AssetDatabase.SaveAssets();
-
             return converterData;
         }
 

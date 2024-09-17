@@ -27,10 +27,11 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             return IsValid();
         }
 
-        public void NotifyChangedIfDirty()
+        public void SaveAndNotifyChangedIfDirty()
         {
             if (isDirty)
             {
+                EditorUtility.SetDirty(data);
                 DataChanged?.Invoke();
                 isDirty = false;
             }

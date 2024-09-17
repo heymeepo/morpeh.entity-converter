@@ -9,7 +9,7 @@ namespace Scellecs.Morpeh.EntityConverter.Logs
 
         private LogDepthFlags depthFlags;
 
-        public Logger() => depthFlags = DEFAULT_LOG_DEPTH_FLAGS;
+        public Logger() => depthFlags = DEFAULT_LOG_DEPTH_FLAGS | LogDepthFlags.InternalDebug | LogDepthFlags.Debug | LogDepthFlags.Info;
 
         public void Log(string message, LogDepthFlags depth)
         {

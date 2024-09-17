@@ -23,7 +23,7 @@ namespace Scellecs.Morpeh.EntityConverter
             if (dataProvider.TryGetData(out var data))
             {
                 var settings = data.ConverterSettings;
-                logger.SetLogFlags(settings.logDepthFlags);
+                //logger.SetLogFlags(settings.logDepthFlags);
             }
             else
             {

@@ -7,9 +7,6 @@ namespace Scellecs.Morpeh.EntityConverter
 {
     internal sealed class EntityConverter
     {
-        private EntityConverterAssetPostprocessor assetPostprocessor;
-        private List<IAssetPostprocessSystem> postprocessors;
-
         private EntityConverterDataProvider dataProvider;
         private SettingsService settingsService;
         private AuthoringDataService authoringDataService;
@@ -18,6 +15,9 @@ namespace Scellecs.Morpeh.EntityConverter
 
         private BakingProcessor bakingProcessor;
         private AuthoringBakingService bakingService;
+
+        private EntityConverterAssetPostprocessor assetPostprocessor;
+        private List<IAssetPostprocessSystem> postprocessors;
 
         private Logger logger;
 

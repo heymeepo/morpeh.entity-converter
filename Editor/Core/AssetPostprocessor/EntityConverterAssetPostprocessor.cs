@@ -22,7 +22,6 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             if (postProcessContext != null)
             {
-                Debug.Log(true);
                 context = postProcessContext;
                 postProcessContext = null;
                 return true;

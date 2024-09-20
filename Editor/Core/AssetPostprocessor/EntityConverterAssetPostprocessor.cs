@@ -80,7 +80,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
                 var deletedAssetsCombined = new List<string>(instance.postProcessContext.AllDeletedAssetsPaths);
                 deletedAssetsCombined.AddRange(deletedAssets);
-
+                
                 var importedAuthoringsCombined = new List<ImportedAuthoringData>(instance.postProcessContext.ImportedAuthorings);
                 importedAuthoringsCombined.AddRange(importedAuthorings);
 

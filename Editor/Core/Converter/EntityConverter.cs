@@ -1,6 +1,7 @@
 ﻿using Scellecs.Morpeh.EntityConverter.Editor.Baking;
 using Scellecs.Morpeh.EntityConverter.Logs;
 using System.Collections.Generic;
+using System.Text;
 using UnityEditor;
 
 namespace Scellecs.Morpeh.EntityConverter.Editor
@@ -56,6 +57,8 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
         {
             if (assetPostprocessor.TryGetContext(out var context))
             {
+                LogContext(context);
+
                 foreach (var postrpocessor in postprocessors)
                 {
                     postrpocessor.Execute(context);
@@ -66,6 +69,27 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
             {
                 dataProvider.SaveAndNotifyChangedIfDirty();
             }
+        }
+
+        private void LogContext(OnAssetPostprocessContext context)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("OnAssetPostprocessContext:");
+            sb.AppendLine("\nImportedAuthorings:");
+
+            foreach (var importedAuthoring in context.ImportedAuthorings)
+            {
+                sb.AppendLine($"{importedAuthoring.type}, {importedAuthoring.GUID}, {importedAuthoring.path}");
+            }
+
+            sb.AppendLine("\nDeleted assets paths:");
+
+            foreach (var deleted in context.AllDeletedAssetsPaths)
+            {
+                sb.AppendLine($"{deleted}");
+            }
+
+            logger.Log(sb.ToString(), LogFlags.InternalDebug);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
                     foreach (var guid in sceneGUIDs)
                     {
-                        data.SceneGUIDs.Add(guid);
+                        AddAuthoringScene(guid);
                     }
 
                     foreach (string guid in prefabAssetsGUIDs)
@@ -114,10 +114,18 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void AddAuthoringScene(string sceneGUID)
         {
+            if (string.IsNullOrEmpty(sceneGUID))
+            {
+                logger.Log("Unable to add authoring scene because an invalid GUID was received.", LogFlags.InternalDebug);
+                return;
+            }
+
             if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.ContainsKey(sceneGUID) == false)
                 {
+                    logger.Log($"Adding authoring asset. Type: {AuthoringType.Scene}. GUID: {sceneGUID}", LogFlags.InternalDebug);
+
                     data.SceneGUIDs.Add(sceneGUID);
                     data.AssetGUIDInfos.Add(sceneGUID, new AssetGUIDInfo()
                     {
@@ -131,10 +139,18 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void AddAuthoringPrefab(string prefabGUID)
         {
+            if (string.IsNullOrEmpty(prefabGUID))
+            {
+                logger.Log("Unable to add authoring preafab because an invalid GUID was received.", LogFlags.InternalDebug);
+                return;
+            }
+
             if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.ContainsKey(prefabGUID) == false)
                 {
+                    logger.Log($"Adding authoring asset. Type: {AuthoringType.Prefab}. GUID: {prefabGUID}", LogFlags.InternalDebug);
+
                     data.AuthoringPrefabGUIDs.Add(prefabGUID);
                     data.AssetGUIDInfos.Add(prefabGUID, new AssetGUIDInfo()
                     {
@@ -148,10 +164,17 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void AddSceneBakedData(string assetGUID, SceneBakedDataAsset sceneAsset)
         {
+            if (string.IsNullOrEmpty(assetGUID))
+            {
+                logger.Log("Unable to add scene baked data because an invalid GUID was received.", LogFlags.InternalDebug);
+            }
+
             if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.ContainsKey(assetGUID) == false)
                 {
+                    logger.Log($"Adding authoring asset. Type: {AuthoringType.SceneBakedData}. GUID: {assetGUID}", LogFlags.InternalDebug);
+
                     var sceneGUID = sceneAsset.SceneGuid;
                     data.SceneBakedDataAssets.Add(sceneGUID, sceneAsset);
                     data.AssetGUIDInfos.Add(assetGUID, new AssetGUIDInfo()
@@ -166,11 +189,19 @@ namespace Scellecs.Morpeh.EntityConverter.Editor
 
         public void RemoveAuthoringAsset(string GUID)
         {
+            if (string.IsNullOrEmpty(GUID))
+            {
+                logger.Log("Unable to remove authoring asset because an invalid GUID was received.", LogFlags.InternalDebug);
+                return;
+            }
+
             if (dataProvider.TryGetData(out var data, true))
             {
                 if (data.AssetGUIDInfos.TryGetValue(GUID, out var assetInfo))
                 {
                     var type = assetInfo.type;
+
+                    logger.Log($"Removing authoring asset. Type: {type}. GUID: {GUID}", LogFlags.InternalDebug);
 
                     if (type == AuthoringType.Scene)
                     {

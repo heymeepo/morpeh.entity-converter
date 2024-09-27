@@ -89,7 +89,7 @@ namespace Scellecs.Morpeh.EntityConverter
 
                 var shouldUnparent = bakingContext.unparent;
                 var parentIndex = shouldUnparent ? -1 : lookup.instanceIdToParentIndex[instanceId];
-                TransformBaking.BakeTransformGroup(bakingContext, converter.gameObject, parentIndex >= 0);
+                TransformBaking.BakeTransformGroup(bakingContext, converter.gameObject, parentIndex < 0);
 
                 parentChildPairsCount = parentIndex >= 0 ? parentChildPairsCount + 1 : parentChildPairsCount;
                 componentsCount += components.Count;

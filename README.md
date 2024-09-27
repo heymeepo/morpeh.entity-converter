@@ -141,7 +141,7 @@ public struct AwesomeFloat4Component : IComponent
 }
 ```
 
-In the second option, you can assign a value to a component using its Type. The ```T data``` in this case can be any structure, either managed or unmanaged, but it must exactly match the memory layout of the component you want to write it into. This is a somewhat dangerous way to add a component to an entity. Use it only if you are absolutely certain that you need to. 
+In the second option, you can assign a value to a component using its Type. The ```T data``` in this case can be any structure, either managed or unmanaged, but ensure that the target type has the same internal structure and memory layout as the source type, including alignment and field types, to avoid incorrect interpretation of data. This is a somewhat dangerous way to add a component to an entity. Use it only if you are absolutely certain that you need to.
 
 **> EntityLink**
 
